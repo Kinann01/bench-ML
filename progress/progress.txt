@@ -1,0 +1,7 @@
+19-10-2025:
+- What is the data model? How is the data organized?
+- What are the features?
+- Do we have to pick a subset of the features?
+- Do we need to perform any filtering?
+- How will the pipeline look like?
+- What are we considering as a regression or an improvement?

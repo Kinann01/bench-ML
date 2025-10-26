@@ -5,3 +5,10 @@
 - Do we need to perform any filtering?
 - How will the pipeline look like?
 - What are we considering as a regression or an improvement?
+
+26-10-2025:
+- JVM and java bytecode? Tiered compilation?
+- From my understanding of JVM and the whole process of Java compilation, what can we infer about the data we have?
+- Based on what we learned and found above, we should find a subset of each default.csv that we are interested in. Which and how do we decide?
+- Assume commits A and B, how can you define a regression that occurred due to commit B? How are you defining this "regression"?
+- recap/elaborate on pipeline.

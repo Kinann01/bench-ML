@@ -1,0 +1,23 @@
+{
+  "13": {
+    "name": "ftp-graal-ee-master-jdk-11"
+  },
+  "15": {
+    "name": "ftp-graal-ee-release-jdk-11"
+  },
+  "16": {
+    "name": "ftp-graal-ee-release-jdk-8"
+  },
+  "18": {
+    "name": "ftp-graal-ce-master-jdk-11"
+  },
+  "23": {
+    "name": "ftp-graal-ce-master-jdk-17"
+  },
+  "24": {
+    "name": "ftp-graal-ee-master-jdk-17"
+  },
+  "25": {
+    "name": "ftp-graal-ee-release-jdk-17"
+  }
+}

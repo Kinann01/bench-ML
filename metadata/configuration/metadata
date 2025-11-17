@@ -1,0 +1,37 @@
+{
+  "34": {
+    "name": "vanilla-gc-12-gone-native",
+    "label": "Library JIT 12GS G1 GC",
+    "description": "GC: G1 Garbage Collector (-XX:+UseG1GC -Xms12G -Xmx12G)\nJVMCI: Library Compiler (-XX:+UseJVMCINativeLibrary)\n"
+  },
+  "35": {
+    "name": "vanilla-gc-12-thruput-native",
+    "label": "Library JIT Thruput GC",
+    "description": "GC: Thruput Garbage Collector (-XX:+UseParallelGC -XX:+UseParallelOldGC -Xms12G -Xmx12G)\nGC: Fixed Tenuring Threshold (-XX:InitialTenuringThreshold=4 -XX:MaxTenuringThreshold=4)\nGC: Disabled Generation Sizing (-XX:SurvivorRatio=4 -XX:-UseAdaptiveSizePolicy -XX:-UsePSAdaptiveSurvivorsSizePolicy)\nJVMCI: Library Compiler (-XX:+UseJVMCINativeLibrary)\n"
+  },
+  "39": {
+    "name": "native-gc-12-gone-pgo",
+    "label": "PGO AOT 12GS G1 GC",
+    "description": "GC: G1 Garbage Collector (-Xms12G -Xmx12G)\nMX: AOT Profile Guided Optimizations\n"
+  },
+  "40": {
+    "name": "native-gc-12-serial",
+    "label": "Static AOT Serial GC",
+    "description": "GC: Serial Garbage Collector (-Xms12G -Xmx12G)\nMX: AOT Default Configuration\n"
+  },
+  "41": {
+    "name": "native-gc-12-serial-pgo",
+    "label": "PGO AOT Serial GC",
+    "description": "GC: Serial Garbage Collector (-Xms12G -Xmx12G)\nMX: AOT Profile Guided Optimizations\n"
+  },
+  "42": {
+    "name": "native-gc-12-gone-mx-pgo",
+    "label": "PGO AOT 12GX G1 GC",
+    "description": "GC: G1 Garbage Collector (-Xmx12G)\nMX: AOT Profile Guided Optimizations\n"
+  },
+  "43": {
+    "name": "vanilla-gc-12-gone-mx-native",
+    "label": "Library JIT 12GX G1 GC",
+    "description": "GC: G1 Garbage Collector (-XX:+UseG1GC -Xmx12G)\nJVMCI: Library Compiler (-XX:+UseJVMCINativeLibrary)\n"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "5": {
+    "name": "blades-2100-mhz-8-cpu-64-mem",
+    "label": "Xeon 2100 MHz 8 cores 64 GB",
+    "description": "CPU: Intel Xeon E5-2620 V4 (2100 MHz, 8 cores, 20 MB cache)\nRAM: 64 GB 2133 MT/s\n"
+  },
+  "6": {
+    "name": "blades-3500-mhz-4-cpu-32-mem",
+    "label": "Xeon 3500 MHz 4 cores 32 GB",
+    "description": "CPU: Intel Xeon E3-1230 V6 (3500 MHz, 4 cores, 8 MB cache)\nRAM: 32 GB 2400 MT/s\n"
+  }
+}

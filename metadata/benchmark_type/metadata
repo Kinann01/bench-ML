@@ -1,0 +1,22 @@
+{
+  "16": {
+    "name": "renaissance-0-14",
+    "label": "Renaissance 0.14",
+    "description": "Renaissance 0.14\nhttps://renaissance.dev\n"
+  },
+  "5": {
+    "name": "scalabench-polished",
+    "label": "ScalaBench",
+    "description": "ScalaBench 0.1.0 with DaCapo 9.12\nhttps://www.scalabench.org\n"
+  },
+  "14": {
+    "name": "renaissance-0-13",
+    "label": "Renaissance 0.13",
+    "description": "Renaissance 0.13\nhttps://renaissance.dev\n"
+  },
+  "7": {
+    "name": "specjvm-2008-polished",
+    "label": "SPECjvm 2008 (non-compliant)",
+    "description": "SPECjvm 2008 (non-compliant)\nhttps://www.spec.org/jvm2008\n"
+  }
+}

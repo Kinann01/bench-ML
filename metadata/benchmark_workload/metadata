@@ -1,0 +1,310 @@
+{
+  "99": {
+    "name": "actors-large",
+    "type": 5
+  },
+  "100": {
+    "name": "apparat-default",
+    "type": 5
+  },
+  "101": {
+    "name": "avrora-large",
+    "type": 5
+  },
+  "102": {
+    "name": "batik-small",
+    "type": 5
+  },
+  "103": {
+    "name": "eclipse-small",
+    "type": 5
+  },
+  "104": {
+    "name": "factorie-default",
+    "type": 5
+  },
+  "105": {
+    "name": "fop-default",
+    "type": 5
+  },
+  "106": {
+    "name": "h2-default",
+    "type": 5
+  },
+  "107": {
+    "name": "jython-large",
+    "type": 5
+  },
+  "108": {
+    "name": "kiama-default",
+    "type": 5
+  },
+  "109": {
+    "name": "luindex-default",
+    "type": 5
+  },
+  "110": {
+    "name": "lusearch-large",
+    "type": 5
+  },
+  "111": {
+    "name": "pmd-large",
+    "type": 5
+  },
+  "112": {
+    "name": "scalac-large",
+    "type": 5
+  },
+  "113": {
+    "name": "scaladoc-large",
+    "type": 5
+  },
+  "114": {
+    "name": "scalap-large",
+    "type": 5
+  },
+  "115": {
+    "name": "scalariform-huge",
+    "type": 5
+  },
+  "117": {
+    "name": "scalaxb-huge",
+    "type": 5
+  },
+  "118": {
+    "name": "specs-large",
+    "type": 5
+  },
+  "119": {
+    "name": "sunflow-large",
+    "type": 5
+  },
+  "120": {
+    "name": "tmt-default",
+    "type": 5
+  },
+  "121": {
+    "name": "tradebeans-default",
+    "type": 5
+  },
+  "122": {
+    "name": "tradesoap-large",
+    "type": 5
+  },
+  "123": {
+    "name": "xalan-large",
+    "type": 5
+  },
+  "126": {
+    "name": "compiler.compiler",
+    "type": 7
+  },
+  "127": {
+    "name": "compiler.sunflow",
+    "type": 7
+  },
+  "128": {
+    "name": "compress",
+    "type": 7
+  },
+  "129": {
+    "name": "crypto.aes",
+    "type": 7
+  },
+  "130": {
+    "name": "crypto.rsa",
+    "type": 7
+  },
+  "131": {
+    "name": "crypto.signverify",
+    "type": 7
+  },
+  "132": {
+    "name": "derby",
+    "type": 7
+  },
+  "135": {
+    "name": "mpegaudio",
+    "type": 7
+  },
+  "136": {
+    "name": "scimark.fft.large",
+    "type": 7
+  },
+  "137": {
+    "name": "scimark.lu.large",
+    "type": 7
+  },
+  "138": {
+    "name": "scimark.monte_carlo",
+    "type": 7
+  },
+  "139": {
+    "name": "scimark.sor.large",
+    "type": 7
+  },
+  "140": {
+    "name": "scimark.sparse.large",
+    "type": 7
+  },
+  "141": {
+    "name": "serial",
+    "type": 7
+  },
+  "142": {
+    "name": "sunflow",
+    "type": 7
+  },
+  "143": {
+    "name": "xml.transform",
+    "type": 7
+  },
+  "144": {
+    "name": "xml.validation",
+    "type": 7
+  },
+  "276": {
+    "name": "akka-uct",
+    "type": 14
+  },
+  "277": {
+    "name": "als",
+    "type": 14
+  },
+  "279": {
+    "name": "db-shootout",
+    "type": 14
+  },
+  "284": {
+    "name": "fj-kmeans",
+    "type": 14
+  },
+  "285": {
+    "name": "future-genetic",
+    "type": 14
+  },
+  "288": {
+    "name": "mnemonics",
+    "type": 14
+  },
+  "293": {
+    "name": "par-mnemonics",
+    "type": 14
+  },
+  "296": {
+    "name": "rx-scrabble",
+    "type": 14
+  },
+  "297": {
+    "name": "scala-doku",
+    "type": 14
+  },
+  "298": {
+    "name": "scala-kmeans",
+    "type": 14
+  },
+  "300": {
+    "name": "scrabble",
+    "type": 14
+  },
+  "301": {
+    "name": "akka-uct",
+    "type": 16
+  },
+  "302": {
+    "name": "als",
+    "type": 16
+  },
+  "303": {
+    "name": "chi-square",
+    "type": 16
+  },
+  "304": {
+    "name": "db-shootout",
+    "type": 16
+  },
+  "305": {
+    "name": "dec-tree",
+    "type": 16
+  },
+  "306": {
+    "name": "dotty",
+    "type": 16
+  },
+  "307": {
+    "name": "finagle-chirper",
+    "type": 16
+  },
+  "308": {
+    "name": "finagle-http",
+    "type": 16
+  },
+  "309": {
+    "name": "fj-kmeans",
+    "type": 16
+  },
+  "310": {
+    "name": "future-genetic",
+    "type": 16
+  },
+  "311": {
+    "name": "gauss-mix",
+    "type": 16
+  },
+  "312": {
+    "name": "log-regression",
+    "type": 16
+  },
+  "313": {
+    "name": "mnemonics",
+    "type": 16
+  },
+  "314": {
+    "name": "movie-lens",
+    "type": 16
+  },
+  "315": {
+    "name": "naive-bayes",
+    "type": 16
+  },
+  "316": {
+    "name": "neo4j-analytics",
+    "type": 16
+  },
+  "317": {
+    "name": "page-rank",
+    "type": 16
+  },
+  "318": {
+    "name": "par-mnemonics",
+    "type": 16
+  },
+  "319": {
+    "name": "philosophers",
+    "type": 16
+  },
+  "320": {
+    "name": "reactors",
+    "type": 16
+  },
+  "321": {
+    "name": "rx-scrabble",
+    "type": 16
+  },
+  "322": {
+    "name": "scala-doku",
+    "type": 16
+  },
+  "323": {
+    "name": "scala-kmeans",
+    "type": 16
+  },
+  "324": {
+    "name": "scala-stm-bench7",
+    "type": 16
+  },
+  "325": {
+    "name": "scrabble",
+    "type": 16
+  }
+}

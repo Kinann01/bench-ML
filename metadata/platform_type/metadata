@@ -1,0 +1,57 @@
+{
+  "32": {
+    "name": "native-ee-master-jdk-17",
+    "label": "Graal EE (complete) JDK 17",
+    "description": "Graal EE (devel) JDK 17\nNative Image Extension\nOracle Labs Developer Build\n"
+  },
+  "12": {
+    "name": "graal-ee-master-jdk-11",
+    "label": "Graal EE (devel) JDK 11",
+    "description": "Graal EE (devel) JDK 11\nOracle Labs Developer Build\n"
+  },
+  "14": {
+    "name": "graal-ee-release-jdk-11",
+    "label": "Graal EE (lease) JDK 11",
+    "description": "Graal EE (release) JDK 11"
+  },
+  "15": {
+    "name": "graal-ee-release-jdk-8",
+    "label": "Graal EE (release) JDK 8",
+    "description": "Graal EE (release) JDK 8"
+  },
+  "16": {
+    "name": "graal-ce-master-jdk-11",
+    "label": "Graal CE (devel) JDK 11",
+    "description": "Graal CE (devel) JDK 11\nOracle Labs Developer Build\n"
+  },
+  "26": {
+    "name": "graal-ce-master-jdk-17",
+    "label": "Graal CE (devel) JDK 17",
+    "description": "Graal CE (devel) JDK 17\nOracle Labs Developer Build\n"
+  },
+  "27": {
+    "name": "graal-ee-master-jdk-17",
+    "label": "Graal EE (devel) JDK 17",
+    "description": "Graal EE (devel) JDK 17\nOracle Labs Developer Build\n"
+  },
+  "28": {
+    "name": "graal-ee-release-jdk-17",
+    "label": "Graal EE (release) JDK 17",
+    "description": "Graal EE (release) JDK 17"
+  },
+  "29": {
+    "name": "native-ee-master-jdk-11",
+    "label": "Graal EE (complete) JDK 11",
+    "description": "Graal EE (devel) JDK 11\nNative Image Extension\nOracle Labs Developer Build\n"
+  },
+  "30": {
+    "name": "native-ce-master-jdk-11",
+    "label": "Graal CE (complete) JDK 11",
+    "description": "Graal CE (devel) JDK 11\nNative Image Extension\nOracle Labs Developer Build\n"
+  },
+  "31": {
+    "name": "native-ce-master-jdk-17",
+    "label": "Graal CE (complete) JDK 17",
+    "description": "Graal CE (devel) JDK 17\nNative Image Extension\nOracle Labs Developer Build\n"
+  }
+}

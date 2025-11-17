@@ -1,0 +1,6 @@
+{
+  "benchmark_type": "kiama",
+  "machine_host": 31,
+  "platform_type": 12,
+  "gc_config": 34
+}

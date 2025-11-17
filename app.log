@@ -1,0 +1,8 @@
+2025-11-17 18:25:16 - INFO - [Module: main.py, Line number: 62] - Configuration successfully loaded and validated.
+2025-11-17 18:25:16 - INFO - [Module: main.py, Line number: 76] - Running with: Config(benchmark_type='kiama', machine_host='31', platform_type=12, gc_config=34)
+2025-11-17 18:25:16 - INFO - [Module: finder.py, Line number: 36] - Init DataFinder with base_dir: /Users/kinanal-falakh/Desktop/bench-ML/measurement
+2025-11-17 18:25:16 - INFO - [Module: finder.py, Line number: 54] - Starting scan for measurements matching configuration...
+2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 202] - Keeping path: /Users/kinanal-falakh/Desktop/bench-ML/measurement/48/18/74/8741848
+2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 202] - Keeping path: /Users/kinanal-falakh/Desktop/bench-ML/measurement/88/97/66/8669788
+2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 202] - Keeping path: /Users/kinanal-falakh/Desktop/bench-ML/measurement/29/98/66/8669829
+2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 66] - Scan complete. Found 3 matching directories.

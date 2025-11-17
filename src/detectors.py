@@ -99,30 +99,27 @@ class SteadyStateDetector:
     def _perform_pos_analysis(self, iteration_time_series: pd.Series, start_index: int) -> int:
         """
         Analyzes Performance Outcome Signals (POS) using a variant of the KB-KSSD algorithm.
+
         Phase 2 & 3 of the Hybrid Model:
+
         1. Defines ROI (Region of Interest) after the CAS start_index
         2. Smoothens the POS signal (Stage 1).
         3. Applies Kernel Convolution to find the 'step down' to steady state (Stage 2).
         """
 
-        KERNEL_SIZE = DUMMY          # Size of the step-detector kernel
-        SMOOTH_WINDOW = DUMMY       # Window for outlier removal
+        KERNEL_SIZE = DUMMY # Size of the step-detector kernel
+        SMOOTH_WINDOW = DUMMY# Window for outlier removal
 
         roi_start_index = start_index # we should be guaranteed to start from at least >= 0
         LAST = None
         pos_roi = iteration_time_series.iloc[slice(roi_start_index, LAST)]
 
-
-        # Validation: Ensure ROI is long enough for the kernel
-        if len(pos_roi) < KERNEL_SIZE:
-            return -1
-
-
         smoothed_roi = self._smoothen(pos_roi, window_size=SMOOTH_WINDOW)
-        half_k = DUMMY
+        half_k = KERNEL_SIZE // 2
         kernel = np.concatenate([np.ones(half_k), -1 * np.ones(half_k)])
         convolved = np.convolve(smoothed_roi, kernel, mode='valid')
         absolute_index = roi_start_index + np.argmax(convolved) + half_k
+
         return int(absolute_index)
 
     def detect_cutoff_index(self, df: pd.DataFrame) -> int:

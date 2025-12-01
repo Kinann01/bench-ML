@@ -1,0 +1,10 @@
+Major:
+
+- What do we do if they are very spikey. i.e. data in general is very spiky and noise.
+- Add full support for POS analysis in cases where compilation activity is missing
+
+Minor:
+
+- Not necessarily a TODO but keep an eye on how needs_analysis() is done. The thresholds might need to be re-adjusted later when more data is visited.
+- _calculate_metric() needs error handling
+- _smoothen() is defined twice in two different places.

@@ -1,6 +1,44 @@
-{
-  "benchmark_type": "kiama",
-  "machine_host": 31,
-  "platform_type": 12,
-  "gc_config": 34
-}
+[
+  {
+    "benchmark_type": "kiama",
+    "machine_host": 31,
+    "platform_type": 12,
+    "gc_config": 34
+  },
+  {
+    "benchmark_type": "luindex",
+    "machine_host": 14,
+    "platform_type": 12,
+    "gc_config": 34
+  },
+  {
+    "benchmark_type": "h2",
+    "machine_host": 63,
+    "platform_type": 26,
+    "gc_config": 34
+  },
+  {
+    "benchmark_type": "finagle-http",
+    "machine_host": 43,
+    "platform_type": 16,
+    "gc_config": 34
+  },
+  {
+    "benchmark_type": "kiama",
+    "machine_host": 24,
+    "platform_type": 12,
+    "gc_config": 43
+  },
+  {
+    "benchmark_type": "finagle-chirper",
+    "machine_host": 9,
+    "platform_type": 16,
+    "gc_config": 43
+  },
+  {
+    "benchmark_type": "scalac-large",
+    "machine_host": 24,
+    "platform_type": 12,
+    "gc_config": 34
+  }
+]

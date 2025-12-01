@@ -16,14 +16,16 @@ class DatasetPipeline:
     Responsible for loading files, applying the detector,
     slicing the data, and merging into one dataset.
     """
-    def __init__(self, detector: SteadyStateDetector, versions: Dict[Path, str], plotter: Plotter):
+    def __init__(self, detector: SteadyStateDetector, plotter: Plotter):
         self.detector = detector
         self.plotter = plotter
-        self.versions = versions # TODO: We will probablly need this to add context to each dataset
 
-    def process_and_merge(self, paths: Set[Path]) -> pd.DataFrame:
+    def process_and_merge(self, paths: Set[Path], versions : Dict[Path, str]) -> pd.DataFrame:
 
         processed_frames = []
+
+        logger.info("Processing and merging datasets...")
+        logger.info("------------------------------")
 
         for path in paths:
             csv_path = path / "default.csv"
@@ -39,12 +41,14 @@ class DatasetPipeline:
                 cutoff_idx = self.detector.detect_cutoff_index(raw_df)
                 logger.info("Finished processing file: %s", csv_path)
 
-                if cutoff_idx is None:
+                if cutoff_idx == 0:
                     logger.warning(f"No cutoff index detected for {csv_path}")
                     continue
 
                 logger.info("Detected cutoff index: %d", cutoff_idx)
+                logger.info("------------------------------")
                 steady_df = raw_df.iloc[cutoff_idx:].copy()
+                steady_df['version'] = versions[path]
                 processed_frames.append(steady_df)
 
             except Exception as e:

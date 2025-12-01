@@ -19,3 +19,13 @@
 - Set up the main dataset pipeline for filtering and merging the datasets
 - Apply the "filter" on each found default.csv to detect steady state prior to merging them.
 - Implement plotter and save pngs to directory.
+
+23-11-2025:
+- Parameters
+- Add makefile support
+
+30-11-2025:
+- Cutoff index cannot be in the end of the series
+- Define a metric to evaluate "spikeness" in the data
+- DataSetUtil implemented
+- Version

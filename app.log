@@ -1,8 +1,105 @@
-2025-11-17 18:25:16 - INFO - [Module: main.py, Line number: 62] - Configuration successfully loaded and validated.
-2025-11-17 18:25:16 - INFO - [Module: main.py, Line number: 76] - Running with: Config(benchmark_type='kiama', machine_host='31', platform_type=12, gc_config=34)
-2025-11-17 18:25:16 - INFO - [Module: finder.py, Line number: 36] - Init DataFinder with base_dir: /Users/kinanal-falakh/Desktop/bench-ML/measurement
-2025-11-17 18:25:16 - INFO - [Module: finder.py, Line number: 54] - Starting scan for measurements matching configuration...
-2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 202] - Keeping path: /Users/kinanal-falakh/Desktop/bench-ML/measurement/48/18/74/8741848
-2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 202] - Keeping path: /Users/kinanal-falakh/Desktop/bench-ML/measurement/88/97/66/8669788
-2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 202] - Keeping path: /Users/kinanal-falakh/Desktop/bench-ML/measurement/29/98/66/8669829
-2025-11-17 18:25:51 - INFO - [Module: finder.py, Line number: 66] - Scan complete. Found 3 matching directories.
+2025-12-01 12:12:16 - INFO - [Module: main.py, Line number: 81] - Successfully loaded and validated 7 configurations.
+2025-12-01 12:12:16 - INFO - [Module: main.py, Line number: 91] - Running with: 7 configs from configs.json
+2025-12-01 12:12:16 - INFO - [Module: finder.py, Line number: 49] - Init DataFinder with base_dir: /Users/kinanal-falakh/Desktop/bench-ML/measurement for 7 configs
+2025-12-01 12:12:16 - INFO - [Module: finder.py, Line number: 65] - Starting scan for measurements matching configurations...
+2025-12-01 12:12:52 - INFO - [Module: finder.py, Line number: 81] - Scan complete. Found 14 matching directories across 7 configs.
+2025-12-01 12:12:52 - INFO - [Module: plotter.py, Line number: 74] - Plotter initialized. Root plot dir: /Users/kinanal-falakh/Desktop/bench-ML/plots
+2025-12-01 12:12:52 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:52 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:52 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/48/18/74/8741848/default.csv
+2025-12-01 12:12:52 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=789: SteadyStateParams(window_size=50, cas_threshold=43.461, smoothen_window_size=78, kernel_size=16, comparison_window_size=78)
+2025-12-01 12:12:53 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/48_18_74_8741848_SSD_OFFSET.png
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/48/18/74/8741848/default.csv
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 235
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/29/98/66/8669829/default.csv
+2025-12-01 12:12:53 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=1014: SteadyStateParams(window_size=50, cas_threshold=43.001999999999995, smoothen_window_size=101, kernel_size=16, comparison_window_size=100)
+2025-12-01 12:12:53 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/29_98_66_8669829_SSD_OFFSET.png
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/29/98/66/8669829/default.csv
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 239
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/88/97/66/8669788/default.csv
+2025-12-01 12:12:53 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=919: SteadyStateParams(window_size=50, cas_threshold=40.751999999999995, smoothen_window_size=91, kernel_size=16, comparison_window_size=91)
+2025-12-01 12:12:53 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/88_97_66_8669788_SSD_OFFSET.png
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/88/97/66/8669788/default.csv
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 235
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/13/19/74/8741913/default.csv
+2025-12-01 12:12:53 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=556: SteadyStateParams(window_size=50, cas_threshold=30.735, smoothen_window_size=55, kernel_size=16, comparison_window_size=55)
+2025-12-01 12:12:53 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/13_19_74_8741913_SSD_OFFSET.png
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/13/19/74/8741913/default.csv
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 7
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/88/00/67/8670088/default.csv
+2025-12-01 12:12:53 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=542: SteadyStateParams(window_size=50, cas_threshold=31.275, smoothen_window_size=54, kernel_size=16, comparison_window_size=54)
+2025-12-01 12:12:53 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/88_00_67_8670088_SSD_OFFSET.png
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/88/00/67/8670088/default.csv
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 8
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:53 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/08/32/77/8773208/default.csv
+2025-12-01 12:12:53 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=235: SteadyStateParams(window_size=23, cas_threshold=30.752999999999997, smoothen_window_size=23, kernel_size=16, comparison_window_size=23)
+2025-12-01 12:12:54 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/08_32_77_8773208_SSD_OFFSET.png
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/08/32/77/8773208/default.csv
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 135
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/24/04/68/8680424/default.csv
+2025-12-01 12:12:54 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=258: SteadyStateParams(window_size=25, cas_threshold=37.214999999999996, smoothen_window_size=25, kernel_size=16, comparison_window_size=25)
+2025-12-01 12:12:54 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/24_04_68_8680424_SSD_OFFSET.png
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/24/04/68/8680424/default.csv
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 97
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/92/32/77/8773292/default.csv
+2025-12-01 12:12:54 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=265: SteadyStateParams(window_size=26, cas_threshold=30.590999999999998, smoothen_window_size=26, kernel_size=16, comparison_window_size=26)
+2025-12-01 12:12:54 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/92_32_77_8773292_SSD_OFFSET.png
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/92/32/77/8773292/default.csv
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 99
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/30/02/67/8670230/default.csv
+2025-12-01 12:12:54 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=191: SteadyStateParams(window_size=19, cas_threshold=186.183, smoothen_window_size=19, kernel_size=16, comparison_window_size=19)
+2025-12-01 12:12:54 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/30_02_67_8670230_SSD_OFFSET.png
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/30/02/67/8670230/default.csv
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 9
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/09/87/76/8768709/default.csv
+2025-12-01 12:12:54 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=177: SteadyStateParams(window_size=17, cas_threshold=185.38199999999998, smoothen_window_size=17, kernel_size=16, comparison_window_size=17)
+2025-12-01 12:12:54 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/09_87_76_8768709_SSD_OFFSET.png
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/09/87/76/8768709/default.csv
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 9
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/25/19/74/8741925/default.csv
+2025-12-01 12:12:54 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=916: SteadyStateParams(window_size=50, cas_threshold=39.041999999999994, smoothen_window_size=91, kernel_size=16, comparison_window_size=91)
+2025-12-01 12:12:54 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/25_19_74_8741925_SSD_OFFSET.png
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/25/19/74/8741925/default.csv
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 402
+2025-12-01 12:12:54 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/41/00/67/8670041/default.csv
+2025-12-01 12:12:55 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=997: SteadyStateParams(window_size=50, cas_threshold=39.015, smoothen_window_size=99, kernel_size=16, comparison_window_size=99)
+2025-12-01 12:12:55 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/41_00_67_8670041_SSD_OFFSET.png
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/41/00/67/8670041/default.csv
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 239
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 58] - No files processed
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 27] - Processing and merging datasets...
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 28] - ------------------------------
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/96/10/67/8671096/default.csv
+2025-12-01 12:12:55 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=137: SteadyStateParams(window_size=13, cas_threshold=381.33, smoothen_window_size=13, kernel_size=16, comparison_window_size=13)
+2025-12-01 12:12:55 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/96_10_67_8671096_SSD_OFFSET.png
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/96/10/67/8671096/default.csv
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 68
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 39] - Processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/21/28/74/8742821/default.csv
+2025-12-01 12:12:55 - INFO - [Module: detectors.py, Line number: 204] - Dynamic Params for N=171: SteadyStateParams(window_size=17, cas_threshold=387.78299999999996, smoothen_window_size=17, kernel_size=16, comparison_window_size=17)
+2025-12-01 12:12:55 - INFO - [Module: plotter.py, Line number: 62] - Logged plot: /Users/kinanal-falakh/Desktop/bench-ML/plots/21_28_74_8742821_SSD_OFFSET.png
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 42] - Finished processing file: /Users/kinanal-falakh/Desktop/bench-ML/measurement/21/28/74/8742821/default.csv
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 48] - Detected cutoff index: 73
+2025-12-01 12:12:55 - INFO - [Module: pipeline.py, Line number: 49] - ------------------------------

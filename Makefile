@@ -1,7 +1,12 @@
 PYTHON = python3
 SRC = src
 
-.PHONY: index classify train analyze clean help
+.PHONY: loader index classify train analyze clean help
+
+# Load all measurement data, apply SSD + log-IQR normalization, and save as training_data_all_years.npy + config_scalers.pkl
+# Sets up the data for training
+loader:
+	$(PYTHON) $(SRC)/loader.py --base-dir .
 
 # Build index: --base-dir is the directory containing the years of measurement subdirectories along with the 
 # respect metadata (i.e. base-dir/2023/, base-dir/2024/, etc.) where each year directory contains measurement/ and metadata/)
@@ -17,6 +22,9 @@ train:
 	$(PYTHON) $(SRC)/train_long.py --data training_data_long.npy --epochs 50
 
 # Analyze configs using the trained model and index, outputting reports to reports/ directory
+# When analyzing, run it within a --base-dir where the year directory that is expected to contain the configs 
+# to be analyzed is located (e.g. if the configs are from 2020_index.pkl, then run analyze_configs.py under dir where 2020 
+# is located so that measurements/ and metadata/ subdirs can be accessed)
 analyze:
 	$(PYTHON) $(SRC)/analyze_configs.py \
 		--configs configs/configs_long.json \
@@ -32,6 +40,7 @@ clean:
 
 help:
 	@echo "Available commands:"
+	@echo "  make loader    - Load + preprocess all data → training_data_all_years.npy"
 	@echo "  make index     - Build Config→runs index from measurement dirs"
 	@echo "  make classify  - Classify configs as long/short"
 	@echo "  make train     - Train TS2Vec encoder"

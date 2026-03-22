@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Build a persistent index: Config → [(run_dir, version)] mapping.
+Build a persistent index: Config → [(path, version)] mapping.
 
 Scans all year directories once and saves the result as a pickle file.
 This avoids re-traversing measurement directories on every analysis run.

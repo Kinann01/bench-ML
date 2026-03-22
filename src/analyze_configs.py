@@ -600,6 +600,9 @@ def main():
         # Encode
         embeddings = encode_runs(model, X)
 
+        # t-SNE visualization
+        plot_tsne(embeddings, versions, config, config_dir)
+
         # Compute distances
         distances = compute_consecutive_distances(embeddings)
 

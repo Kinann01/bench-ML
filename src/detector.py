@@ -60,7 +60,9 @@ class SteadyStateDetector:
         # CAS Analysis
         cas_signal = self._perform_cas_analysis(cas_series.copy())
         start_index_for_pos = cas_signal
-        # return start_index_for_pos
+        
+        # if its 0, it will be caught by the sanity check and skipped
+        return start_index_for_pos
         
         # POS Analysis (Steady State on iteration time)
         pos_offset = self._perform_pos_analysis(pos_series.copy(), roi_start_index=start_index_for_pos)

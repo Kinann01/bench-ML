@@ -583,6 +583,119 @@ def write_report(config: Config, prep_stats: dict, embeddings: np.ndarray,
     with open(report_path, 'w') as f:
         f.write('\n'.join(lines) + '\n')
 
+def cross_config_analysis(results_summary: List[dict], output_dir: Path) -> None:
+    """
+    Cross-config corroboration: group flagged transitions by
+    (benchmark_type, platform_type, version_from, version_to) across
+    all machine_host and gc_config values.
+
+    A transition flagged on multiple hosts/GCs is strong evidence of a
+    code regression rather than machine noise or GC-specific behavior.
+
+    Writes cross_config_report.json to output_dir.
+    """
+    from collections import defaultdict
+
+    # Group: (benchmark_type, platform_type, version_from, version_to) →
+    #   list of {host, gc, distance, z_score, rating}
+    groups = defaultdict(list)
+    # Also track total configs per (benchmark_type, platform_type) to compute coverage
+    configs_per_benchmark = defaultdict(set)
+
+    for entry in results_summary:
+        cfg = entry["config"]
+        bench = cfg["benchmark_type"]
+        platform = cfg["platform_type"]
+        host = cfg["machine_host"]
+        gc = cfg["gc_config"]
+
+        configs_per_benchmark[(bench, platform)].add((host, gc))
+
+        for t in entry.get("flagged_transitions", []):
+            key = (bench, platform, t["version_from"], t["version_to"])
+            groups[key].append({
+                "machine_host": host,
+                "gc_config": gc,
+                "distance": t["distance"],
+                "z_score": t["z_score"],
+                "rating": entry.get("rating", "UNKNOWN"),
+            })
+
+    report = []
+    for (bench, platform, v_from, v_to), hits in sorted(groups.items()):
+        hosts_flagged = sorted(set(h["machine_host"] for h in hits))
+        gcs_flagged = sorted(set(h["gc_config"] for h in hits))
+        n_configs_total = len(configs_per_benchmark[(bench, platform)])
+
+        n_flagged = len(hits)
+        ratio = n_flagged / n_configs_total if n_configs_total > 0 else 0.0
+
+        if n_configs_total <= 1:
+            confidence = "N/A"
+        elif ratio >= 0.40 or (n_flagged >= 2 and n_configs_total <= 3):
+            confidence = "STRONG"
+        elif ratio >= 0.20 and n_flagged >= 2:
+            confidence = "MODERATE"
+        elif n_flagged >= 2:
+            confidence = "WEAK"
+        else:
+            confidence = "SINGLE-CONFIG"
+
+        report.append({
+            "benchmark_type": bench,
+            "platform_type": platform,
+            "version_from": v_from,
+            "version_to": v_to,
+            "hosts_flagged": hosts_flagged,
+            "gcs_flagged": gcs_flagged,
+            "n_configs_flagged": n_flagged,
+            "n_configs_total": n_configs_total,
+            "ratio": round(ratio, 3),
+            "confidence": confidence,
+            "details": hits,
+        })
+
+    # Sort: STRONG first, then MODERATE, etc., then by ratio descending
+    confidence_order = {"STRONG": 0, "MODERATE": 1, "WEAK": 2, "SINGLE-CONFIG": 3, "N/A": 4}
+    report.sort(key=lambda r: (confidence_order[r["confidence"]], -r["ratio"]))
+
+    # Write JSON report
+    report_path = output_dir / "cross_config_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    # Write CSV report
+    csv_path = output_dir / "cross_config_report.csv"
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "confidence", "benchmark_type", "platform_type",
+            "version_from", "version_to",
+            "n_configs_flagged", "n_configs_total", "ratio",
+            "hosts_flagged", "gcs_flagged",
+        ])
+        for r in report:
+            writer.writerow([
+                r["confidence"],
+                r["benchmark_type"],
+                r["platform_type"],
+                r["version_from"],
+                r["version_to"],
+                r["n_configs_flagged"],
+                r["n_configs_total"],
+                r["ratio"],
+                ";".join(str(h) for h in r["hosts_flagged"]),
+                ";".join(str(g) for g in r["gcs_flagged"]),
+            ])
+
+    n_strong = sum(1 for r in report if r["confidence"] == "STRONG")
+    n_moderate = sum(1 for r in report if r["confidence"] == "MODERATE")
+    logger.info(f"Cross-config analysis: {len(report)} transitions — "
+                f"{n_strong} STRONG, {n_moderate} MODERATE")
+    logger.info(f"Cross-config report: {report_path}")
+    logger.info(f"Cross-config CSV: {csv_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Per-config anomaly analysis pipeline")
     parser.add_argument('--configs', type=str, required=True,
@@ -602,6 +715,9 @@ def main():
     parser.add_argument('--min-z-score', type=float, default=2.0,
                         dest='min_z_score',
                         help='Minimum z-score for a transition to be flagged (default: 2.0)')
+    parser.add_argument('--cross-config', action='store_true', default=False,
+                        dest='cross_config',
+                        help='Run cross-config corroboration analysis after per-config processing')
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -718,6 +834,7 @@ def main():
                 "mean_distance": float(distances.mean()),
                 "threshold": threshold,
                 "rating": rating,
+                "flagged_transitions": flagged,
             })
         finally:
             _detach_log_handler(log_handler)
@@ -726,6 +843,10 @@ def main():
     summary_path = output_dir / "analysis_summary.json"
     with open(summary_path, 'w') as f:
         json.dump(results_summary, f, indent=2)
+
+    # Cross-config corroboration (optional)
+    if args.cross_config:
+        cross_config_analysis(results_summary, output_dir)
 
     elapsed = time.time() - t_start
     logger.info(f"\n{'='*60}")

@@ -316,7 +316,7 @@ def plot_anomaly_neighbors(X: np.ndarray, embeddings: np.ndarray,
     (red) alongside its K nearest neighbors in embedding space (blue).
 
     Generates two plots per anomaly:
-      - anomaly_vXXX_vYYY.png      — Z-normed data
+      - anomaly_vXXX_vYYY.png      — log+IQR normalized data
       - anomaly_vXXX_vYYY_raw.png  — raw iteration time (ns) from CSV
 
     The query is version[idx+1] (the "new" version that caused the spike).
@@ -396,7 +396,7 @@ def plot_anomaly_neighbors(X: np.ndarray, embeddings: np.ndarray,
 
             ax.plot(series[:real_len], linewidth=1, color=color, alpha=0.8)
             ax.set_title(f"{label} \u2014 Length: {real_len}", fontsize=10)
-            ax.set_ylabel('Z-normed')
+            ax.set_ylabel('normed')
 
         axes[-1].set_xlabel('Timestep')
         fig.suptitle(f"Anomaly v{v_from}\u2192v{v_to} (dist={anom_dist:.4f}) [normalized]\n"

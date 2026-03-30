@@ -83,6 +83,21 @@ def config_dir_name(config: Config) -> str:
 
 
 
+def _attach_config_log_handler(log_path: Path) -> logging.FileHandler:
+    """Attach a file handler to the root logger writing to log_path."""
+    handler = logging.FileHandler(log_path, mode='w', encoding='utf-8')
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logging.getLogger().addHandler(handler)
+    return handler
+
+
+def _detach_log_handler(handler: logging.FileHandler) -> None:
+    """Flush, close, and remove a file handler from the root logger."""
+    handler.flush()
+    handler.close()
+    logging.getLogger().removeHandler(handler)
+
+
 def load_index(path: str) -> Dict[tuple, List[Tuple[Path, int]]]:
     """Load pre-built Config → [(run_dir, version)] index."""
     with open(path, 'rb') as f:
@@ -236,13 +251,19 @@ def plot_tsne(embeddings: np.ndarray, versions: List[int],
 
 
 def flag_anomalies(distances: np.ndarray, versions: List[int],
-                   threshold_percentile: float = 95.0) -> Tuple[List[dict], float]:
+                   threshold_percentile: float = 97.0,
+                   min_z_score: float = 2.0) -> Tuple[List[dict], float]:
     """
     Compute anomaly threshold and flag consecutive distances above it.
 
+    A transition is only flagged if it exceeds both the percentile threshold
+    AND has a z-score >= min_z_score relative to this config's distance distribution.
+    This prevents flagging transitions that are statistically at the tail but not
+    meaningfully separated from the noise floor.
+
     Returns:
         flagged: list of dicts with version_from, version_to, distance, z_score
-        threshold: the P-threshold value
+        threshold: the percentile threshold value
     """
     n_distances = len(distances)
     if n_distances < 3:
@@ -256,12 +277,14 @@ def flag_anomalies(distances: np.ndarray, versions: List[int],
 
     flagged = []
     for idx in anomaly_indices:
-        flagged.append({
-            "version_from": versions[idx],
-            "version_to": versions[idx + 1],
-            "distance": float(distances[idx]),
-            "z_score": float((distances[idx] - mean_dist) / std_dist) if std_dist > 0 else 0.0,
-        })
+        z = float((distances[idx] - mean_dist) / std_dist) if std_dist > 0 else 0.0
+        if z >= min_z_score:
+            flagged.append({
+                "version_from": versions[idx],
+                "version_to": versions[idx + 1],
+                "distance": float(distances[idx]),
+                "z_score": z,
+            })
 
     return flagged, threshold
 
@@ -427,9 +450,56 @@ def plot_anomaly_neighbors(X: np.ndarray, embeddings: np.ndarray,
     logger.info(f"  Saved {len(anomaly_indices)} anomaly neighbor plots")
 
 
+def score_config_reliability(distances: np.ndarray, prep_stats: dict,
+                             flagged: List[dict]) -> Tuple[str, List[str]]:
+    """
+    Rate the reliability of this config's anomaly results.
+
+    Checks four warning signals and returns a rating plus a list of warning strings:
+      STRONG         — 0 warnings: results are trustworthy
+      WEAK           — 1 warning:  interpret with caution
+      RECOMMEND-SKIP — 2+ warnings: results are likely dominated by noise
+
+    Warning signals:
+      1. High mean distance (> 0.35): baseline is noisy, threshold is inflated
+      2. High length range ratio (> 5×): SSD instability, model may cluster by length
+      3. Too few versions (< 10): P97 threshold unreliable with small samples
+      4. Low max z-score among flagged (< 1.5): anomalies barely stand out from noise
+    """
+    warnings = []
+
+    mean_dist = float(np.mean(distances)) if len(distances) > 0 else 0.0
+    n_versions = prep_stats.get('n_valid', 0)
+    max_len = prep_stats.get('max_len', 1)
+    min_len = max(prep_stats.get('min_len', 1), 1)
+    length_ratio = max_len / min_len
+
+    if mean_dist > 0.35:
+        warnings.append(f"High mean distance ({mean_dist:.3f} > 0.35) — baseline is noisy")
+    if length_ratio > 5.0:
+        warnings.append(f"High length range ratio ({length_ratio:.1f}x > 5x) — possible SSD instability")
+    if n_versions < 10:
+        warnings.append(f"Few versions ({n_versions} < 10) — percentile threshold unreliable")
+    if flagged:
+        max_z = max(f['z_score'] for f in flagged)
+        if max_z < 1.5:
+            warnings.append(f"Low max z-score ({max_z:.2f} < 1.5) — anomalies barely above noise floor")
+
+    n_warnings = len(warnings)
+    if n_warnings >= 2:
+        rating = "RECOMMEND-SKIP"
+    elif n_warnings == 1:
+        rating = "WEAK"
+    else:
+        rating = "STRONG"
+
+    return rating, warnings
+
+
 def write_report(config: Config, prep_stats: dict, embeddings: np.ndarray,
                  distances: np.ndarray, versions: List[int],
                  flagged: List[dict], threshold: float, config_dir: Path,
+                 rating: str = "STRONG", reliability_warnings: Optional[List[str]] = None,
                  csv_paths: Optional[List[str]] = None):
     """Write a human-readable report.txt summarizing the config analysis."""
     from scipy.spatial.distance import pdist
@@ -479,8 +549,13 @@ def write_report(config: Config, prep_stats: dict, embeddings: np.ndarray,
     lines.append(f"Std distance:           {distances.std():.6f}")
     lines.append(f"Min distance:           {distances.min():.6f}")
     lines.append(f"Max distance:           {distances.max():.6f}")
-    lines.append(f"P95 threshold:          {threshold:.6f}")
+    lines.append(f"P97 threshold:          {threshold:.6f}")
     lines.append(f"Flagged anomalies:      {len(flagged)}")
+    lines.append(f"")
+    lines.append(f"--- Reliability ---")
+    lines.append(f"Rating:                 {rating}")
+    for w in (reliability_warnings or []):
+        lines.append(f"  WARNING: {w}")
     lines.append(f"")
 
     if flagged:
@@ -522,6 +597,11 @@ def main():
                         help='Output directory for per-config reports')
     parser.add_argument('--max-configs', type=int, default=None,
                         help='Process at most N configs (for testing)')
+    parser.add_argument('--percentile', type=float, default=97.0,
+                        help='Percentile threshold for anomaly flagging (default: 97.0)')
+    parser.add_argument('--min-z-score', type=float, default=2.0,
+                        dest='min_z_score',
+                        help='Minimum z-score for a transition to be flagged (default: 2.0)')
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -583,53 +663,64 @@ def main():
         config_dir = output_dir / dir_name
         config_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save config.json
-        with open(config_dir / "config.json", 'w') as f:
-            json.dump(asdict(config), f, indent=2)
+        log_handler = _attach_config_log_handler(config_dir / "analysis.log")
+        try:
+            # Save config.json
+            with open(config_dir / "config.json", 'w') as f:
+                json.dump(asdict(config), f, indent=2)
 
-        # Preprocess
-        X, versions, prep_stats, csv_paths = preprocess_runs(entries)
-        if len(versions) < 2:
-            logger.warning(f"  Skipping: only {len(versions)} valid runs after SSD")
-            # Write a minimal report noting the skip
-            with open(config_dir / "report.txt", 'w') as f:
-                f.write(f"SKIPPED: only {len(versions)} valid runs after SSD preprocessing.\n")
-                f.write(f"Raw entries in index: {len(entries)}\n")
-            continue
+            # Preprocess
+            X, versions, prep_stats, csv_paths = preprocess_runs(entries)
+            if len(versions) < 2:
+                logger.warning(f"  Skipping: only {len(versions)} valid runs after SSD")
+                with open(config_dir / "report.txt", 'w') as f:
+                    f.write(f"SKIPPED: only {len(versions)} valid runs after SSD preprocessing.\n")
+                    f.write(f"Raw entries in index: {len(entries)}\n")
+                continue
 
-        # Encode
-        embeddings = encode_runs(model, X)
+            # Encode
+            embeddings = encode_runs(model, X)
 
-        # t-SNE visualization
-        plot_tsne(embeddings, versions, config, config_dir)
+            # t-SNE visualization
+            plot_tsne(embeddings, versions, config, config_dir)
 
-        # Compute distances
-        distances = compute_consecutive_distances(embeddings)
+            # Compute distances
+            distances = compute_consecutive_distances(embeddings)
 
-        # Flag anomalies
-        flagged, threshold = flag_anomalies(distances, versions)
-        plot_anomaly_neighbors(X, embeddings, versions, distances, threshold,
-                               config, config_dir, csv_paths)
+            # Flag anomalies
+            flagged, threshold = flag_anomalies(distances, versions,
+                                                threshold_percentile=args.percentile,
+                                                min_z_score=args.min_z_score)
+            plot_anomaly_neighbors(X, embeddings, versions, distances, threshold,
+                                   config, config_dir, csv_paths)
 
-        # Save distances CSV table
-        save_distances_csv(distances, versions, threshold, config_dir)
+            # Save distances CSV table
+            save_distances_csv(distances, versions, threshold, config_dir)
 
-        # Write report
-        write_report(config, prep_stats, embeddings, distances, versions,
-                     flagged, threshold, config_dir, csv_paths)
+            # Score config reliability
+            rating, reliability_warnings = score_config_reliability(distances, prep_stats, flagged)
 
-        logger.info(f"  Report saved to {config_dir}/")
+            # Write report
+            write_report(config, prep_stats, embeddings, distances, versions,
+                         flagged, threshold, config_dir,
+                         rating=rating, reliability_warnings=reliability_warnings,
+                         csv_paths=csv_paths)
 
-        results_summary.append({
-            "config": asdict(config),
-            "dir": dir_name,
-            "n_versions": len(versions),
-            "version_range": [versions[0], versions[-1]],
-            "seq_len_max": prep_stats.get("max_len", 0),
-            "n_anomalies": len(flagged),
-            "mean_distance": float(distances.mean()),
-            "threshold": threshold,
-        })
+            logger.info(f"  Report saved to {config_dir}/")
+
+            results_summary.append({
+                "config": asdict(config),
+                "dir": dir_name,
+                "n_versions": len(versions),
+                "version_range": [versions[0], versions[-1]],
+                "seq_len_max": prep_stats.get("max_len", 0),
+                "n_anomalies": len(flagged),
+                "mean_distance": float(distances.mean()),
+                "threshold": threshold,
+                "rating": rating,
+            })
+        finally:
+            _detach_log_handler(log_handler)
 
     # Save global summary
     summary_path = output_dir / "analysis_summary.json"

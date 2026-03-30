@@ -308,7 +308,7 @@ def save_distances_csv(distances: np.ndarray, versions: List[int],
 
 def plot_anomaly_neighbors(X: np.ndarray, embeddings: np.ndarray,
                            versions: List[int], distances: np.ndarray,
-                           threshold: float, config: Config,
+                           flagged: List[dict], config: Config,
                            config_dir: Path, csv_paths: Optional[List[str]] = None,
                            k: int = 5):
     """
@@ -323,8 +323,17 @@ def plot_anomaly_neighbors(X: np.ndarray, embeddings: np.ndarray,
     """
     from scipy.spatial.distance import cdist
 
-    anomaly_indices = np.where(distances > threshold)[0]
-    if len(anomaly_indices) == 0:
+    if not flagged:
+        return
+
+    # Build anomaly indices from the flagged list (which already passed both
+    # percentile and z-score filters)
+    flagged_pairs = {(f["version_from"], f["version_to"]) for f in flagged}
+    anomaly_indices = [
+        i for i in range(len(distances))
+        if (versions[i], versions[i + 1]) in flagged_pairs
+    ]
+    if not anomaly_indices:
         return
 
     # Pairwise distance matrix
@@ -807,7 +816,7 @@ def main():
             flagged, threshold = flag_anomalies(distances, versions,
                                                 threshold_percentile=args.percentile,
                                                 min_z_score=args.min_z_score)
-            plot_anomaly_neighbors(X, embeddings, versions, distances, threshold,
+            plot_anomaly_neighbors(X, embeddings, versions, distances, flagged,
                                    config, config_dir, csv_paths)
 
             # Save distances CSV table

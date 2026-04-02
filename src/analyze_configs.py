@@ -4,7 +4,7 @@ Per-Config Anomaly Analysis Pipeline.
 
 Given a JSON of configs and a pre-built index, for each config:
   1. Load runs from index
-  2. Preprocess: SSD cutoff → per-config Z-score → pad to max_len
+  2. Preprocess: SSD cutoff → per-config log+IQR normalization → pad to max_len
   3. Encode with trained TS2Vec → instance-level embeddings
   4. Generate per-config report directory containing:
      - config.json          — config metadata
@@ -29,7 +29,7 @@ import argparse
 import time
 from pathlib import Path
 from dataclasses import dataclass, asdict
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -290,19 +290,20 @@ def flag_anomalies(distances: np.ndarray, versions: List[int],
 
 
 def save_distances_csv(distances: np.ndarray, versions: List[int],
-                       threshold: float, config_dir: Path):
+                       flagged: List[dict], config_dir: Path):
     """Save a CSV table of consecutive-commit distances."""
+    flagged_pairs = {(f["version_from"], f["version_to"]) for f in flagged}
     csv_path = config_dir / "distances.csv"
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(["version_from", "version_to", "cosine_distance", "flagged"])
         for i in range(len(distances)):
-            flagged = "YES" if distances[i] > threshold else ""
+            is_flagged = "YES" if (versions[i], versions[i + 1]) in flagged_pairs else ""
             writer.writerow([
                 versions[i],
                 versions[i + 1],
                 f"{distances[i]:.6f}",
-                flagged,
+                is_flagged,
             ])
 
 
@@ -343,12 +344,8 @@ def plot_anomaly_neighbors(X: np.ndarray, embeddings: np.ndarray,
     data = X.squeeze(-1)  # (n_runs, max_len)
     real_lengths = np.array([int(np.sum(data[i] != PAD_VALUE)) for i in range(len(data))])
 
-    # Pre-load raw data from CSVs if paths are available
     detector = SteadyStateDetector()
-    raw_data = {}  # idx -> raw series (ns)
-    if csv_paths:
-        # We'll load lazily per anomaly below
-        pass
+    raw_data = {}  # idx -> raw series (ns), loaded lazily
 
     def _load_raw(idx):
         """Load raw post-SSD iteration time for a given index."""
@@ -558,7 +555,7 @@ def write_report(config: Config, prep_stats: dict, embeddings: np.ndarray,
     lines.append(f"Std distance:           {distances.std():.6f}")
     lines.append(f"Min distance:           {distances.min():.6f}")
     lines.append(f"Max distance:           {distances.max():.6f}")
-    lines.append(f"P97 threshold:          {threshold:.6f}")
+    lines.append(f"Threshold:              {threshold:.6f}")
     lines.append(f"Flagged anomalies:      {len(flagged)}")
     lines.append(f"")
     lines.append(f"--- Reliability ---")
@@ -641,7 +638,7 @@ def cross_config_analysis(results_summary: List[dict], output_dir: Path) -> None
 
         if n_configs_total <= 1:
             confidence = "N/A"
-        elif ratio >= 0.40 or (n_flagged >= 2 and n_configs_total <= 3):
+        elif ratio >= 0.40:
             confidence = "STRONG"
         elif ratio >= 0.20 and n_flagged >= 2:
             confidence = "MODERATE"
@@ -820,7 +817,7 @@ def main():
                                    config, config_dir, csv_paths)
 
             # Save distances CSV table
-            save_distances_csv(distances, versions, threshold, config_dir)
+            save_distances_csv(distances, versions, flagged, config_dir)
 
             # Score config reliability
             rating, reliability_warnings = score_config_reliability(distances, prep_stats, flagged)

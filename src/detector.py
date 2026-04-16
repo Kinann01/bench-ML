@@ -4,12 +4,14 @@ import numpy as np
 import pandas as pd
 from typing import Optional
 
-COMPILATION_TIME_COLS = ['compilation_time_ms', 'pol_dd_0_compilation_time_ms']
+from pipeline_config import DEFAULTS
+from constants import COMPILATION_TIME_COLS
 
-WINDOW_FRACTION = 0.10
-WINDOW_MIN = 5
-WINDOW_MAX = 50
-THRESHOLD_FRACTION = 0.009
+_ssd_defaults = DEFAULTS["ssd"]
+WINDOW_FRACTION = _ssd_defaults["window_fraction"]
+WINDOW_MIN = _ssd_defaults["window_min"]
+WINDOW_MAX = _ssd_defaults["window_max"]
+THRESHOLD_FRACTION = _ssd_defaults["threshold_fraction"]
 
 
 def _resolve_col(df: pd.DataFrame, candidates: list) -> Optional[str]:
@@ -17,6 +19,14 @@ def _resolve_col(df: pd.DataFrame, candidates: list) -> Optional[str]:
         if col in df.columns:
             return col
     return None
+
+
+def configure(ssd_params: dict):
+    global WINDOW_FRACTION, WINDOW_MIN, WINDOW_MAX, THRESHOLD_FRACTION
+    WINDOW_FRACTION = ssd_params.get("window_fraction", WINDOW_FRACTION)
+    WINDOW_MIN = ssd_params.get("window_min", WINDOW_MIN)
+    WINDOW_MAX = ssd_params.get("window_max", WINDOW_MAX)
+    THRESHOLD_FRACTION = ssd_params.get("threshold_fraction", THRESHOLD_FRACTION)
 
 
 class SteadyStateDetector:
@@ -48,3 +58,7 @@ class SteadyStateDetector:
 
         candidates = np.where(rolling_mean <= threshold)[0]
         return int(candidates[0]) if candidates.size > 0 else 0
+
+
+def main():
+    print("This is a module, not meant to be run directly.")

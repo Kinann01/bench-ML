@@ -9,23 +9,8 @@ import pandas as pd
 from config import Config
 from constants import (ALLOWED_GC_CONFIGS, ALLOWED_MACHINE_HOSTS,
                        ALLOWED_PLATFORM_TYPES, METADATA_SUBDIRS, 
-                       CSV_FILENAMES, ITERATION_TIME_COLS)
-
-def _find_csv(run_dir: Path) -> Optional[Path]:
-    for name in CSV_FILENAMES:
-        p = run_dir / name
-        if p.exists():
-            return p
-    return None
-
-
-""" Unused helper but might become useful in the future """
-def _resolve_iter_col(df: pd.DataFrame) -> Optional[str]:
-    for col in ITERATION_TIME_COLS:
-        if col in df.columns:
-            return col
-    return None
-
+                       CSV_FILENAMES, ITERATION_TIME_COLS, 
+                       find_csv)
 
 class DataLoader:
 
@@ -167,7 +152,7 @@ class DataLoader:
 
 
 def _count_rows(run_dir: Path) -> int:
-    csv_path = _find_csv(run_dir)
+    csv_path = find_csv(run_dir)
     if csv_path is None:
         return 0
     try:

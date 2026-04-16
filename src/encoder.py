@@ -66,6 +66,10 @@ class TSEncoder(nn.Module):
         return self.repr_projection(h)
 
 
+# ---------------------------------------------------------------------------
+#  Contrastive Loss
+# ---------------------------------------------------------------------------
+
 def hierarchical_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor,
                                   temporal_unit: int = 0,
                                   alpha: float = 0.5) -> torch.Tensor:
@@ -93,7 +97,7 @@ def hierarchical_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor,
 
 def _instance_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
 
-    batch_size, T, _ = z1.shape
+    batch_size, T, D = z1.shape
     if batch_size <= 1:
         return torch.tensor(0., device=z1.device)
 
@@ -107,7 +111,7 @@ def _instance_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tens
 
 def _temporal_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
 
-    batch_size, T, _ = z1.shape
+    batch_size, T, D = z1.shape
     if T <= 1:
         return torch.tensor(0., device=z1.device)
 
@@ -119,16 +123,22 @@ def _temporal_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tens
     return loss / batch_size
 
 
+# ---------------------------------------------------------------------------
+#  Data Augmentation
+# ---------------------------------------------------------------------------
+
 def timestamp_masking(x: torch.Tensor, mask_ratio: float = 0.5) -> torch.Tensor:
 
-    batch, T, _ = x.shape
+    batch, T, F_ = x.shape
     keep_mask = (torch.rand(batch, T, device=x.device) > mask_ratio).float()
     return x * keep_mask.unsqueeze(-1)
 
 
-def random_cropping(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, int]:
+def random_cropping(x: torch.Tensor, lengths: torch.Tensor):
 
+    batch, T, F_ = x.shape
     min_len = 2
+
     min_real_len = max(int(lengths.min().item()), min_len)
     crop_len = max(min_len, int(min_real_len * 0.7))
 
@@ -145,6 +155,10 @@ def random_cropping(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tenso
 
     return crop1, crop2, crop_len
 
+
+# ---------------------------------------------------------------------------
+#  TS2Vec Model
+# ---------------------------------------------------------------------------
 
 class TS2Vec(nn.Module):
 

@@ -9,7 +9,6 @@ import pandas as pd
 from config import Config
 from constants import (ALLOWED_GC_CONFIGS, ALLOWED_MACHINE_HOSTS,
                        ALLOWED_PLATFORM_TYPES, METADATA_SUBDIRS, 
-                       CSV_FILENAMES, ITERATION_TIME_COLS, 
                        find_csv)
 
 class DataLoader:

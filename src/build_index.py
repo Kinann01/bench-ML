@@ -5,9 +5,7 @@ import argparse
 from pathlib import Path
 
 from loader import discover_all_runs
-
-ROOT = Path(__file__).resolve().parent.parent
-
+from constants import ROOT
 
 def main():
     parser = argparse.ArgumentParser(

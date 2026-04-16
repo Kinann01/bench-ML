@@ -7,29 +7,9 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 from config import Config
-
-
-CSV_FILENAMES = ['default.csv', 'default.csv.one-per-rep.csv']
-ITERATION_TIME_COLS = ['iteration_time_ns', 'pol_dd_0_iteration_time_ns']
-
-ALLOWED_PLATFORM_TYPES = {
-    12: "graal-ee-master-jdk-11",
-    14: "graal-ee-release-jdk-11",
-    15: "graal-ee-release-jdk-8",
-    16: "graal-ce-master-jdk-11",
-    26: "graal-ce-master-jdk-17",
-    27: "graal-ee-master-jdk-17",
-    28: "graal-ee-release-jdk-17",
-}
-
-ALLOWED_GC_CONFIGS = [34, 35, 43]
-ALLOWED_MACHINE_HOSTS = [8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 43, 63]
-
-METADATA_SUBDIRS = {
-    "benchmark_workload": "metadata/benchmark_workload/metadata",
-    "platform_installation": "metadata/platform_installation/metadata",
-}
-
+from constants import (ALLOWED_GC_CONFIGS, ALLOWED_MACHINE_HOSTS,
+                       ALLOWED_PLATFORM_TYPES, METADATA_SUBDIRS, 
+                       CSV_FILENAMES, ITERATION_TIME_COLS)
 
 def _find_csv(run_dir: Path) -> Optional[Path]:
     for name in CSV_FILENAMES:

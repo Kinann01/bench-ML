@@ -12,27 +12,8 @@ import pandas as pd
 
 from detector import SteadyStateDetector
 from config import Config
-
-
-ROOT = Path(__file__).resolve().parent.parent
-
-CSV_FILENAMES = ['default.csv.one-per-rep.csv', 'default.csv']
-ITERATION_TIME_COLS = ['pol_dd_0_iteration_time_ns', 'iteration_time_ns']
-
-
-def _find_csv(run_dir: Path) -> Optional[Path]:
-    for name in CSV_FILENAMES:
-        p = run_dir / name
-        if p.exists():
-            return p
-    return None
-
-
-def _resolve_iter_col(df: pd.DataFrame) -> Optional[str]:
-    for col in ITERATION_TIME_COLS:
-        if col in df.columns:
-            return col
-    return None
+from constants import (ROOT, find_csv, 
+                       resolve_iter_col)
 
 def load_index(path: Path) -> Dict[tuple, List[Tuple[Path, int]]]:
 
@@ -49,15 +30,13 @@ MAX_SAMPLES = 10
 
 def _measure_one(run_dir: Path) -> Optional[int]:
 
-    csv_path = _find_csv(run_dir)
-
+    csv_path = find_csv(run_dir)
     if csv_path is None:
         return None
     try:
 
         df = pd.read_csv(csv_path)
-
-        if df.empty or _resolve_iter_col(df) is None:
+        if df.empty or resolve_iter_col(df) is None:
             return None
         cutoff_idx = _detector.detect_cutoff_index(df)
         if cutoff_idx == 0:

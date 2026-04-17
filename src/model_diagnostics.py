@@ -119,7 +119,7 @@ def plot_tsne_benchmark(coords, benchmarks, output_path):
     bench_to_id = {name: i for i, name in enumerate(unique)}
     ids = np.array([bench_to_id[b] for b in benchmarks])
 
-    cmap = plt.cm.get_cmap('tab20', len(unique))
+    cmap = plt.colormaps.get_cmap('tab20').resampled(len(unique))
 
     fig, ax = plt.subplots(figsize=(10, 8))
     ax.scatter(coords[:, 0], coords[:, 1], c=ids,

@@ -9,7 +9,7 @@ This project detects performance anomalies in JVM benchmarks by learning tempora
 ## Pipeline
 
 ```
-build_index.py           →  index.pkl
+build_index.py            →  index.pkl
 prepare_training_data.py  →  data/training_data.npy
 train_long.py             →  models/ts2vec.pt
 model_diagnostics.py      →  diagnostics/

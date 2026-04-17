@@ -96,7 +96,7 @@ Additionally, the pipeline generates:
 - `analysis_summary.json` — full analysis results for all configs, including flagged version transitions with distances and z-scores
 - `cross_config_report.csv` — cross-configuration corroboration results
 
-Version changes flagged in `distances.csv` can be cross-referenced with `analysis_summary.json` for full details.
+Corrorborated versions in `cross_config_report.csv` can be cross-referenced with `analysis_summary.json` for full details.
 
 ## Dataset
 

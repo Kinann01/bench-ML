@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-import pandas as pd
-
 from config import Config
 from constants import (ALLOWED_GC_CONFIGS, ALLOWED_MACHINE_HOSTS,
                        ALLOWED_PLATFORM_TYPES, METADATA_SUBDIRS, 

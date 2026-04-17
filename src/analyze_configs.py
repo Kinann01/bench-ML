@@ -234,7 +234,7 @@ def plot_tsne(embeddings: np.ndarray, versions: List[int],
     plt.close(fig)
 
 
-def plot_anomaly_neighbors(padded_runs: np.ndarray, embeddings: np.ndarray,
+def plot_anomaly_neighbors(embeddings: np.ndarray,
                            versions: List[int], distances: np.ndarray,
                            flagged: List[dict], config: Config,
                            config_dir: Path, csv_paths: List[str],
@@ -413,6 +413,9 @@ def cross_config_analysis(results_summary: List[dict],
         else:
             confidence = "SINGLE-CONFIG"
 
+        gcs_flagged = sorted(set(h["gc_config"] for h in hits))
+        hosts_flagged = sorted(set(h["machine_host"] for h in hits))
+
         report.append({
             "benchmark_type": bench,
             "platform_type": platform,
@@ -422,6 +425,8 @@ def cross_config_analysis(results_summary: List[dict],
             "n_configs_total": n_total,
             "ratio": round(ratio, 3),
             "confidence": confidence,
+            "gcs_flagged": gcs_flagged,
+            "hosts_flagged": hosts_flagged,
         })
 
     report.sort(key=lambda r: (confidence_order[r["confidence"]], -r["ratio"]))
@@ -507,7 +512,7 @@ def main():
                 threshold_percentile=pcfg.anomaly_flagging["threshold_percentile"],
                 min_z_score=pcfg.anomaly_flagging["min_z_score"])
 
-            plot_anomaly_neighbors(padded_runs, embeddings, versions, distances,
+            plot_anomaly_neighbors(embeddings, versions, distances,
                                    flagged, config, config_dir, csv_paths)
             save_distances_csv(distances, versions, flagged, config_dir)
 
@@ -545,12 +550,15 @@ def main():
         with open(cross_csv, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(["benchmark_type", "platform_type", "version_from",
-                             "version_to", "n_flagged", "n_total", "ratio", "confidence"])
+                             "version_to", "n_flagged", "n_total", "ratio",
+                             "confidence", "gcs_flagged", "hosts_flagged"])
             for r in cross_report:
                 writer.writerow([r["benchmark_type"], r["platform_type"],
                                  r["version_from"], r["version_to"],
                                  r["n_configs_flagged"], r["n_configs_total"],
-                                 r["ratio"], r["confidence"]])
+                                 r["ratio"], r["confidence"],
+                                 ";".join(str(g) for g in r["gcs_flagged"]),
+                                 ";".join(str(h) for h in r["hosts_flagged"])])
         logger.info(f"  Cross-config report: {cross_csv} ({len(cross_report)} transitions)")
 
     logger.info(f"\nDone. {len(results_summary)}/{len(configs)} configs")

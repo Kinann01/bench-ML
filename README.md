@@ -1,45 +1,79 @@
 # bench-ML
 
-Anomaly detection for performance analysis of benchmarks using TS2Vec contrastive time series embeddings.
+Anomaly detection for performance analysis of JVM benchmarks using TS2Vec contrastive time series embeddings.
 
 ## Overview
 
-This project detects performance anomalies in JVM benchmarks by learning temporal representations of post-warmup iteration times using [TS2Vec](https://arxiv.org/abs/2106.10466) (contrastive learning). Each benchmark version is encoded into a 320-dimensional embedding, and anomalies are flagged when consecutive versions have high cosine distance in the embedding space.
+This project detects performance anomalies in JVM benchmarks by learning temporal representations of post-warmup iteration times using [TS2Vec](https://arxiv.org/abs/2106.10466) (contrastive learning). Each benchmark measurement is encoded into an embedding vector, and anomalies are flagged when consecutive compiler versions produce substantially different embeddings in the learned representation space.
 
 ## Pipeline
 
 ```
-0. loader.py         →  Load + preprocess all data → training_data_all_years.npy
-1. build_index.py    →  Scan measurement dirs → run_index.pkl
-2. classify_configs.py →  Classify configs as long (≥100 timesteps) or short
-3. train_long.py     →  Train TS2Vec encoder on long sequences
-4. analyze_configs.py →  Per-config anomaly detection → reports/
+build_index.py           →  index.pkl
+prepare_training_data.py  →  data/training_data.npy
+train_long.py             →  models/ts2vec.pt
+model_diagnostics.py      →  diagnostics/
+classify_configs.py       →  configs/configs.json
+analyze_configs.py        →  reports/
 ```
 
-### Quick Start
+## Quick Start
 
 ```bash
-make loader     # Load + preprocess all data → .npy
-make index      # Build index from measurement data
-make classify   # Classify configs
-make train      # Train the encoder
-make analyze    # Run anomaly detection
+# 1. Build index from dataset (supports multiple base dirs)
+make index BASE_DIR=/path/to/data/2020
+# or: python3 src/build_index.py --base-dir /data/2020 /data/2021 /data/2022
+
+# 2. Prepare training data
+make prepare
+
+# 3. Train encoder
+make train
+
+# 4. Validate encoder (t-SNE + nearest neighbors)
+make diagnostics
+
+# 5. Select configs with sufficient sequence length
+make classify MIN_LENGTH=100
+
+# 6. Run anomaly detection
+make analyze
 ```
 
-See the [Makefile](Makefile) for full command arguments and usage notes.
+See `make help` for all available commands and configurable variables.
 
-## Source Files (`src/`)
+## Configuration
 
-| File | Purpose |
-|------|---------|
-| `detector.py` | Steady State Detector (SSD) — identifies warmup cutoff |
-| `encoder.py` | TS2Vec model — dilated CNN encoder with contrastive learning |
-| `loader.py` | Data loading, SSD application, log-IQR normalization, directory scanning |
-| `build_index.py` | Builds persistent Config → runs index |
-| `classify_configs.py` | Classifies configs as long/short by post-SSD length |
-| `analyze_configs.py` | Main anomaly detection pipeline + report generation |
-| `train_long.py` | TS2Vec training script for long sequences |
+All numerical parameters (SSD thresholds, anomaly flagging criteria, training
+hyperparameters) have built-in defaults and can be overridden via `pipeline.conf`.
 
+```bash
+# Use custom config
+python3 src/analyze_configs.py --configs configs.json --index index.pkl --model model.pt --conf pipeline.conf
+```
+
+See [pipeline.conf](pipeline.conf) for all available parameters and documentation.
+
+## Project Structure
+
+```
+src/
+  config.py                 Config dataclass
+  constants.py              Shared constants and helpers
+  pipeline_config.py        Configuration file reader
+  detector.py               Steady-state detection (CAS)
+  encoder.py                TS2Vec encoder + contrastive loss
+  loader.py                 Dataset scanner + metadata resolver
+  build_index.py            Index builder
+  prepare_training_data.py  Training data preparation
+  train_long.py             Encoder training
+  model_diagnostics.py      Encoder validation (t-SNE, neighbors)
+  classify_configs.py       Config selection by sequence length
+  analyze_configs.py        Per-config anomaly detection + reporting
+
+pipeline.conf               Adjustable pipeline parameters
+Makefile                    Pipeline automation
+```
 
 ## Config Format
 
@@ -60,6 +94,24 @@ Configs are JSON arrays specifying benchmark configurations:
 
 Each analyzed config generates a report directory under `reports/`:
 - `report.txt` — text summary with stats and flagged anomalies
-- `tsne.png` — t-SNE embedding visualization
-- `distances.csv` — consecutive version distances
-- `anomaly_*.png` — detailed plots for each flagged transition
+- `tsne.png` — t-SNE embedding visualization colored by version order
+- `distances.csv` — all consecutive version distances with flagged status
+- `anomaly_*.png` — raw iteration time plots for each flagged transition
+
+Additionally, the pipeline generates:
+- `analysis_summary.json` — full analysis results for all configs, including flagged version transitions with distances and z-scores
+- `cross_config_report.csv` — cross-configuration corroboration results
+
+Version changes flagged in `distances.csv` can be cross-referenced with `analysis_summary.json` for full details.
+
+## Dataset
+
+Uses the [GraalVM Compiler Benchmark Results Dataset](https://zenodo.org/communities/graalvm-compiler-benchmark-results) (Bulej et al., ICPE 2023). Expects base directory with `measurement/` and `metadata/` subdirectories.
+
+## Requirements
+
+Python 3.9+
+
+```bash
+pip install -r requirements.txt
+```

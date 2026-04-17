@@ -45,14 +45,8 @@ See `make help` for all available commands and configurable variables.
 ## Configuration
 
 All numerical parameters (SSD thresholds, anomaly flagging criteria, training
-hyperparameters) have built-in defaults and can be overridden via `pipeline.conf`.
-
-```bash
-# Use custom config
-python3 src/analyze_configs.py --configs configs.json --index index.pkl --model model.pt --conf pipeline.conf
-```
-
-See [pipeline.conf](pipeline.conf) for all available parameters and documentation.
+hyperparameters) have built-in defaults and can be overridden via
+[pipeline.conf](pipeline.conf).
 
 ## Project Structure
 

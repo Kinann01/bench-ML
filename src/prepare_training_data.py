@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 
 from detector import SteadyStateDetector
-from config import Config
 
 from constants import (ROOT, PAD_VALUE,
                     find_csv, resolve_iter_col)
@@ -80,8 +79,7 @@ def main():
     all_normalized = []
     all_lengths = []
 
-    for i, (key, entries) in enumerate(sorted(index.items())):
-        config = Config(*key)
+    for i, (_, entries) in enumerate(sorted(index.items())):
 
         raw_series = extract_series(entries)
         if not raw_series:

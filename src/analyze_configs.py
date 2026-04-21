@@ -16,7 +16,13 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from scipy.spatial.distance import cosine, cdist
+from scipy.spatial.distance import cosine, euclidean, cityblock, cdist
+
+_DISTANCE_FNS = {
+    "cosine": cosine,
+    "euclidean": euclidean,
+    "l1": cityblock,
+}
 
 import detector
 from detector import SteadyStateDetector
@@ -134,9 +140,15 @@ def encode_runs(model: TS2Vec, padded_runs: np.ndarray) -> np.ndarray:
     return embeddings
 
 
-def compute_consecutive_distances(embeddings: np.ndarray) -> np.ndarray:
+def compute_consecutive_distances(embeddings: np.ndarray,
+                                  metric: str = "cosine") -> np.ndarray:
+    dist_fn = _DISTANCE_FNS.get(metric)
+    if dist_fn is None:
+        raise ValueError(
+            f"Unknown distance_metric: {metric!r}. "
+            f"Supported: {sorted(_DISTANCE_FNS)}")
     n = len(embeddings)
-    return np.array([cosine(embeddings[i], embeddings[i + 1])
+    return np.array([dist_fn(embeddings[i], embeddings[i + 1])
                      for i in range(n - 1)])
 
 
@@ -520,7 +532,9 @@ def main():
 
             embeddings = encode_runs(model, padded_runs)
             plot_tsne(embeddings, versions, config, config_dir)
-            distances = compute_consecutive_distances(embeddings)
+            distances = compute_consecutive_distances(
+                embeddings,
+                metric=pcfg.anomaly_flagging["distance_metric"])
 
             flagged, threshold = flag_anomalies(
                 distances, versions,

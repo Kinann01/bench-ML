@@ -18,7 +18,6 @@ ALLOWED_PLATFORM_TYPES = {
     14: "graal-ee-release-jdk-11",
     15: "graal-ee-release-jdk-8",
     16: "graal-ce-master-jdk-11",
-    17: "graal-ce-master-jdk-8",
     26: "graal-ce-master-jdk-17",
     27: "graal-ee-master-jdk-17",
     28: "graal-ee-release-jdk-17",

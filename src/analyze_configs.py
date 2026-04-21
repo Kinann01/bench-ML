@@ -16,13 +16,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from scipy.spatial.distance import cosine, euclidean, cityblock, cdist
-
-_DISTANCE_FNS = {
-    "cosine": cosine,
-    "euclidean": euclidean,
-    "l1": cityblock,
-}
+from scipy.spatial.distance import cosine, cdist
 
 import detector
 from detector import SteadyStateDetector
@@ -140,15 +134,9 @@ def encode_runs(model: TS2Vec, padded_runs: np.ndarray) -> np.ndarray:
     return embeddings
 
 
-def compute_consecutive_distances(embeddings: np.ndarray,
-                                  metric: str = "cosine") -> np.ndarray:
-    dist_fn = _DISTANCE_FNS.get(metric)
-    if dist_fn is None:
-        raise ValueError(
-            f"Unknown distance_metric: {metric!r}. "
-            f"Supported: {sorted(_DISTANCE_FNS)}")
+def compute_consecutive_distances(embeddings: np.ndarray) -> np.ndarray:
     n = len(embeddings)
-    return np.array([dist_fn(embeddings[i], embeddings[i + 1])
+    return np.array([cosine(embeddings[i], embeddings[i + 1])
                      for i in range(n - 1)])
 
 
@@ -211,39 +199,6 @@ def score_config_reliability(distances: np.ndarray, prep_stats: dict,
 
     return rating, warnings
 
-
-def plot_tsne(embeddings: np.ndarray, versions: List[int],
-              config: Config, config_dir: Path):
-
-    from sklearn.manifold import TSNE
-
-    n = len(embeddings)
-    if n < 2:
-        return
-
-    perplexity = min(30, n - 1)
-    coords = TSNE(n_components=2, perplexity=perplexity,
-                  random_state=42, max_iter=1000).fit_transform(embeddings)
-
-    fig, ax = plt.subplots(figsize=(12, 8))
-    sc = ax.scatter(coords[:, 0], coords[:, 1], c=np.arange(n),
-                    cmap='coolwarm', s=30, alpha=0.8,
-                    edgecolors='black', linewidth=0.3)
-    plt.colorbar(sc, ax=ax, label='Version Order')
-
-    for idx in [0, n - 1] + ([n // 4, n // 2, 3 * n // 4] if n > 5 else []):
-        ax.annotate(f"v{versions[idx]}", (coords[idx, 0], coords[idx, 1]),
-                    fontsize=7, alpha=0.7, xytext=(5, 5),
-                    textcoords='offset points')
-
-    ax.set_title(f"t-SNE: {config.benchmark_type}\n"
-                 f"h={config.machine_host} p={config.platform_type} "
-                 f"gc={config.gc_config} ({n} versions)", fontsize=11)
-    ax.set_xlabel('t-SNE 1')
-    ax.set_ylabel('t-SNE 2')
-    plt.tight_layout()
-    plt.savefig(str(config_dir / "tsne.png"), dpi=120)
-    plt.close(fig)
 
 
 def plot_anomaly_neighbors(embeddings: np.ndarray,
@@ -468,6 +423,9 @@ def main():
     parser.add_argument('--conf', type=str, default=None,
                         help='Path to pipeline.conf (uses defaults if omitted)')
     parser.add_argument('--output-dir', type=str, default='reports')
+    parser.add_argument('--bname', type=str, default=None,
+                        help="If set, only process configs whose "
+                             "benchmark_type matches this name exactly.")
     args = parser.parse_args()
 
     # Load pipeline config
@@ -494,6 +452,16 @@ def main():
         configs = [Config(**c) for c in json.load(f)]
 
     logger.info(f"Loaded {len(configs)} configs")
+
+    if args.bname:
+        before = len(configs)
+        configs = [c for c in configs if c.benchmark_type == args.bname]
+        logger.info(f"Filtered to benchmark '{args.bname}': "
+                    f"{len(configs)}/{before} configs")
+        if not configs:
+            logger.warning(f"No configs match benchmark '{args.bname}'. "
+                           f"Exiting.")
+            return
 
     training_cfg = pcfg.training
 
@@ -531,10 +499,7 @@ def main():
                 continue
 
             embeddings = encode_runs(model, padded_runs)
-            plot_tsne(embeddings, versions, config, config_dir)
-            distances = compute_consecutive_distances(
-                embeddings,
-                metric=pcfg.anomaly_flagging["distance_metric"])
+            distances = compute_consecutive_distances(embeddings)
 
             flagged, threshold = flag_anomalies(
                 distances, versions,

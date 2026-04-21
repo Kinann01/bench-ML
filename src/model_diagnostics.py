@@ -221,8 +221,9 @@ def main():
     data, embeddings = preprocess_and_encode(model, series_list)
 
     # t-SNE
-    print("Running t-SNE...")
+    print("Running t-SNE (cosine metric)...")
     coords = TSNE(n_components=2, perplexity=30,
+                  metric='cosine',
                   random_state=42, max_iter=1000).fit_transform(embeddings)
 
     plot_tsne_length(coords, lengths, output_dir / "tsne_length.png")

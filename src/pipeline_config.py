@@ -14,7 +14,6 @@ DEFAULTS = {
     "anomaly_flagging": {
         "threshold_percentile": 97.0,
         "min_z_score": 2.0,
-        "distance_metric": "cosine",
     },
     "reliability": {
         "mean_dist_threshold": 0.35,
@@ -45,8 +44,6 @@ _INT_KEYS = {"window_min", "window_max", "min_versions",
              "min_flagged_for_moderate", "min_flagged_for_weak",
              "epochs", "batch_size", "hidden_dim", "repr_dim", "depth"}
 
-_STR_KEYS = {"distance_metric"}
-
 
 class PipelineConfig:
 
@@ -74,9 +71,7 @@ class PipelineConfig:
                 continue
             for key, val in parser.items(section):
                 if key in self._data[section]:
-                    if key in _STR_KEYS:
-                        self._data[section][key] = val.strip()
-                    elif key in _INT_KEYS:
+                    if key in _INT_KEYS:
                         self._data[section][key] = int(val)
                     else:
                         self._data[section][key] = float(val)

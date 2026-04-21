@@ -318,7 +318,8 @@ def save_distances_csv(distances: np.ndarray, versions: List[int],
 def write_report(config: Config, prep_stats: dict, distances: np.ndarray,
                  versions: List[int], flagged: List[dict], threshold: float,
                  config_dir: Path, rating: str = "STRONG",
-                 reliability_warnings: Optional[List[str]] = None):
+                 reliability_warnings: Optional[List[str]] = None,
+                 csv_paths: Optional[List[str]] = None):
 
     lines = [
         f"{'='*60}",
@@ -360,6 +361,20 @@ def write_report(config: Config, prep_stats: dict, distances: np.ndarray,
         for f_ in flagged:
             lines.append(f"  v{f_['version_from']} -> v{f_['version_to']}: "
                          f"dist={f_['distance']:.6f}, z={f_['z_score']:.2f}")
+
+    if csv_paths and len(csv_paths) == len(versions):
+        # A version is "flagged" if it appears as either endpoint of any
+        # flagged transition.
+        flagged_versions = set()
+        for f_ in flagged:
+            flagged_versions.add(f_["version_from"])
+            flagged_versions.add(f_["version_to"])
+        lines.append(f"")
+        lines.append(f"--- Measurement CSV Paths "
+                     f"(version : flagged? : path) ---")
+        for v, p in zip(versions, csv_paths):
+            mark = "YES" if v in flagged_versions else "NO "
+            lines.append(f"  v{v} : {mark} : {p}")
 
     lines.append(f"{'='*60}")
 
@@ -521,7 +536,8 @@ def main():
 
             write_report(config, prep_stats, distances, versions,
                          flagged, threshold, config_dir,
-                         rating=rating, reliability_warnings=warnings)
+                         rating=rating, reliability_warnings=warnings,
+                         csv_paths=csv_paths)
 
             logger.info(f"  Rating: {rating} | Anomalies: {len(flagged)}")
 

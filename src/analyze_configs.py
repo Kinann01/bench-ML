@@ -286,7 +286,9 @@ def write_report(config: Config, prep_stats: dict, distances: np.ndarray,
                  versions: List[int], flagged: List[dict], threshold: float,
                  config_dir: Path, rating: str = "STRONG",
                  reliability_warnings: Optional[List[str]] = None,
-                 csv_paths: Optional[List[str]] = None):
+                 csv_paths: Optional[List[str]] = None,
+                 threshold_percentile: float = 97.0,
+                 min_z_score: float = 2.0):
 
     lines = [
         f"{'='*60}",
@@ -314,6 +316,63 @@ def write_report(config: Config, prep_stats: dict, distances: np.ndarray,
         f"Max distance:           {distances.max():.6f}",
         f"Threshold:              {threshold:.6f}",
         f"Flagged anomalies:      {len(flagged)}",
+    ]
+
+    if len(distances) >= 1:
+        mean_d = float(distances.mean())
+        std_d = float(distances.std())
+        z_scores = ((distances - mean_d) / std_d) if std_d > 0 else np.zeros_like(distances)
+
+        # Max observed z-score
+        i_max = int(np.argmax(z_scores))
+        lines += [
+            f"",
+            f"--- Max observed z-score ---",
+            f"Max z = {z_scores[i_max]:+.2f}  "
+            f"(v{versions[i_max]} -> v{versions[i_max + 1]}, "
+            f"dist={distances[i_max]:.6f})",
+        ]
+
+        # Flag count at different z-thresholds (gate is z>=z AND d>threshold)
+        z_grid = [1.0, 1.5, 2.0, 2.5, 3.0]
+        lines += [
+            f"",
+            f"--- Flag count at different z-thresholds ---",
+            f"(transitions where dist > P{threshold_percentile:g} "
+            f"AND z >= z_thr)",
+        ]
+        for z_thr in z_grid:
+            n = int(np.sum((distances > threshold) & (z_scores >= z_thr)))
+            tag = "  <- current" if abs(z_thr - min_z_score) < 1e-9 else ""
+            lines.append(f"  z >= {z_thr:.1f}:  {n} flagged{tag}")
+
+        # Distance percentiles
+        pct_grid = [50, 75, 90, 95, 97, 99]
+        lines += [
+            f"",
+            f"--- Distance percentiles ---",
+        ]
+        for p in pct_grid:
+            v = float(np.percentile(distances, p))
+            tag = "  <- current gate" if abs(p - threshold_percentile) < 1e-9 else ""
+            lines.append(f"  P{p:>2d}:  {v:.6f}{tag}")
+
+        # Top-K transitions by distance (incl. non-flagged)
+        flagged_pairs = {(f_["version_from"], f_["version_to"]) for f_ in flagged}
+        k = min(5, len(distances))
+        order = np.argsort(distances)[::-1][:k]
+        lines += [
+            f"",
+            f"--- Top {k} transitions by distance ---",
+        ]
+        for rank, idx in enumerate(order, start=1):
+            v_from, v_to = versions[idx], versions[idx + 1]
+            mark = " [FLAGGED]" if (v_from, v_to) in flagged_pairs else ""
+            lines.append(
+                f"  #{rank}: v{v_from} -> v{v_to}  "
+                f"dist={distances[idx]:.6f}  z={z_scores[idx]:+.2f}{mark}")
+
+    lines += [
         f"",
         f"--- Reliability ---",
         f"Rating:                 {rating}",
@@ -516,7 +575,9 @@ def main():
             write_report(config, prep_stats, distances, versions,
                          flagged, threshold, config_dir,
                          rating=rating, reliability_warnings=warnings,
-                         csv_paths=csv_paths)
+                         csv_paths=csv_paths,
+                         threshold_percentile=pcfg.anomaly_flagging["threshold_percentile"],
+                         min_z_score=pcfg.anomaly_flagging["min_z_score"])
 
             logger.info(f"  Rating: {rating} | Anomalies: {len(flagged)}")
 

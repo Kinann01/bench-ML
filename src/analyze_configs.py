@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from scipy.spatial.distance import cosine, cdist
+from scipy.spatial.distance import cosine
 
 import detector
 from detector import SteadyStateDetector
@@ -204,8 +204,7 @@ def score_config_reliability(distances: np.ndarray, prep_stats: dict,
 def plot_anomaly_neighbors(embeddings: np.ndarray,
                            versions: List[int], distances: np.ndarray,
                            flagged: List[dict], config: Config,
-                           config_dir: Path, csv_paths: List[str],
-                           k: int = 5):
+                           config_dir: Path, csv_paths: List[str]):
 
     if not flagged or not csv_paths:
         return
@@ -216,23 +215,16 @@ def plot_anomaly_neighbors(embeddings: np.ndarray,
     if not anomaly_indices:
         return
 
-    dists = cdist(embeddings, embeddings, metric='cosine')
-
     for anom_idx in anomaly_indices:
-        query_i = anom_idx + 1
         v_from, v_to = versions[anom_idx], versions[anom_idx + 1]
         anom_dist = distances[anom_idx]
 
-        neighbors = np.argsort(dists[query_i])
-        neighbors = neighbors[neighbors != query_i][:k]
-        all_indices = [query_i, anom_idx] + list(neighbors)
+        pair = [(anom_idx + 1, v_to, "ANOMALY", '#E53935'),
+                (anom_idx,     v_from, "PREVIOUS", '#FF9800')]
 
-        n_plots = len(all_indices)
-        fig, axes = plt.subplots(n_plots, 1, figsize=(14, 2.5 * n_plots))
-        if n_plots == 1:
-            axes = [axes]
+        fig, axes = plt.subplots(2, 1, figsize=(14, 5))
 
-        for j, (ax, idx) in enumerate(zip(axes, all_indices)):
+        for ax, (idx, v, label, color) in zip(axes, pair):
             raw = _load_raw_series(csv_paths[idx]) if idx < len(csv_paths) else None
 
             if raw is None:
@@ -241,19 +233,8 @@ def plot_anomaly_neighbors(embeddings: np.ndarray,
                 continue
 
             raw_ms = raw / 1e6
-
-            if j == 0:
-                label = f"ANOMALY: v{v_to}"
-                color = '#E53935'
-            elif j == 1:
-                label = f"PREVIOUS: v{v_from} (dist={dists[query_i, idx]:.4f})"
-                color = '#FF9800'
-            else:
-                label = f"Neighbor {j-1}: v{versions[idx]} (dist={dists[query_i, idx]:.4f})"
-                color = '#1E88E5'
-
             ax.plot(raw_ms, linewidth=1, color=color, alpha=0.8)
-            ax.set_title(f"{label} — Length: {len(raw)}", fontsize=10)
+            ax.set_title(f"{label}: v{v} — Length: {len(raw)}", fontsize=10)
             ax.set_ylabel('Time (ms)')
 
         axes[-1].set_xlabel('Iteration')

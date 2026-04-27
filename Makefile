@@ -44,7 +44,7 @@ index-train:
 
 # Step 2 (training): Prepare training data from the training index.
 prepare:
-	$(PYTHON) $(SRC)/prepare_training_data.py --index $(TRAINING_INDEX) --output data/training_data.npy
+	$(PYTHON) $(SRC)/prepare_training_data.py --index $(TRAINING_INDEX) --output data/training_data.npy --min-length $(MIN_LENGTH)
 
 # Step 3 (training): Train the TS2Vec encoder on the prepared data.
 train:
@@ -68,7 +68,7 @@ help:
 	@echo ""
 	@echo "Training (build a new encoder from richer data):"
 	@echo "  make index-train  BASE_DIR=\"2016/ ... 2020/\"    Build training index"
-	@echo "  make prepare                                    Prepare training data"
+	@echo "  make prepare      MIN_LENGTH=100                Prepare training data"
 	@echo "  make train                                      Train TS2Vec encoder"
 	@echo "  make diagnostics                                Run encoder diagnostics"
 	@echo ""

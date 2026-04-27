@@ -66,8 +66,8 @@ def main():
         description="Prepare training data from index: SSD + log+IQR normalization + padding")
     parser.add_argument('--index', type=str, required=True)
     parser.add_argument('--output', type=str, default='data/training_data.npy')
-    parser.add_argument('--min-length', type=int, default=2,
-                        help='Minimum post-SSD length to include (default: 2)')
+    parser.add_argument('--min-length', type=int, default=100,
+                        help='Minimum post-SSD length to include (default: 100)')
     args = parser.parse_args()
 
     index_path = Path(args.index)

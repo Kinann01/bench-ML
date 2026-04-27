@@ -8,36 +8,55 @@ This project detects performance anomalies in JVM benchmarks by learning tempora
 
 ## Pipeline
 
+The pipeline has two distinct workflows that use two distinct indexes so they don't collide:
+
+**Inference** (analyse a dataset for anomalies):
 ```
-build_index.py            →  index.pkl
+build_index.py        →  run_index.pkl
+classify_configs.py   →  configs/configs.json
+analyze_configs.py    →  reports/
+```
+
+**Training** (build a new encoder from richer data — multiple years, no metadata filtering):
+```
+build_index.py            →  training_index.pkl   (--include-all)
 prepare_training_data.py  →  data/training_data.npy
 train_long.py             →  models/ts2vec.pt
 model_diagnostics.py      →  diagnostics/
-classify_configs.py       →  configs/configs.json
-analyze_configs.py        →  reports/
 ```
 
 ## Quick Start
 
+### Inference (using an existing trained encoder)
+
 ```bash
-# 1. Build index from dataset (supports multiple base dirs)
+# 1. Build the analysis index (strict metadata filtering)
 make index BASE_DIR=/path/to/data/2020
-# or: python3 src/build_index.py --base-dir /data/2020 /data/2021 /data/2022
 
-# 2. Prepare training data
-make prepare
-
-# 3. Train encoder
-make train
-
-# 4. Validate encoder (t-SNE + nearest neighbors)
-make diagnostics
-
-# 5. Select configs with sufficient sequence length
+# 2. Select configs with sufficient post-SSD sequence length
 make classify MIN_LENGTH=100
 
-# 6. Run anomaly detection
+# 3. Run per-config anomaly detection
 make analyze
+```
+
+### Training (build a new encoder)
+
+```bash
+# 1. Build the training index from one or more datasets, without
+#    filtering, so the encoder sees as much data as possible.
+make index-train BASE_DIR="/data/2016 /data/2017 /data/2018 /data/2019 /data/2020"
+
+# 2. Prepare the training data (SSD + log/IQR normalization + padding)
+make prepare
+
+# 3. Train the TS2Vec encoder
+make train
+
+# 4. Validate the encoder (t-SNE + nearest neighbors on a sample)
+make diagnostics
+
+# Then use the trained model in the inference workflow above.
 ```
 
 See `make help` for all available commands and configurable variables.
@@ -87,8 +106,7 @@ Configs are JSON arrays specifying benchmark configurations:
 ## Reports
 
 Each analyzed config generates a report directory under `reports/`:
-- `report.txt` — text summary with stats and flagged anomalies
-- `tsne.png` — t-SNE embedding visualization colored by version order
+- `report.txt` — text summary with stats, diagnostic sections, and flagged anomalies
 - `distances.csv` — all consecutive version distances with flagged status
 - `anomaly_*.png` — raw iteration time plots for each flagged transition
 

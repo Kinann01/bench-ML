@@ -3,58 +3,81 @@ SRC = src
 CONF = pipeline.conf
 
 BASE_DIR ?= .
-INDEX ?= run_index.pkl
+ANALYSIS_INDEX ?= run_index.pkl
+TRAINING_INDEX ?= training_index.pkl
 MODEL ?= models/ts2vec.pt
 MIN_LENGTH ?= 100
 
-.PHONY: index prepare train diagnostics classify analyze clean help
+.PHONY: index index-train prepare train diagnostics classify analyze clean help
 
-# Step 1: Build index from base directory containing measurement/ and metadata/
+# ---------------------------------------------------------------------
+# Inference workflow:
+#   make index BASE_DIR=2020/   ->   make classify   ->   make analyze
+# ---------------------------------------------------------------------
+
+# Step 1: Build the analysis index (strict metadata filtering).
 index:
-	$(PYTHON) $(SRC)/build_index.py --base-dir $(BASE_DIR) --output $(INDEX)
+	$(PYTHON) $(SRC)/build_index.py --base-dir $(BASE_DIR) --output $(ANALYSIS_INDEX)
 
-# Step 2: Prepare training data from index (SSD + log+IQR normalization + padding)
-prepare:
-	$(PYTHON) $(SRC)/prepare_training_data.py --index $(INDEX) --output data/training_data.npy
-
-# Step 3: Train TS2Vec encoder
-train:
-	$(PYTHON) $(SRC)/train_long.py --data data/training_data.npy --output $(MODEL) --conf $(CONF)
-
-# Step 4: Run encoder diagnostics (t-SNE + nearest neighbors)
-diagnostics:
-	$(PYTHON) $(SRC)/model_diagnostics.py --index $(INDEX) --model $(MODEL) --conf $(CONF)
-
-# Step 5: Select configurations with sufficient sequence length
+# Step 2: Select configurations with sufficient sequence length.
 classify:
-	$(PYTHON) $(SRC)/classify_configs.py --index $(INDEX) --min-length $(MIN_LENGTH)
+	$(PYTHON) $(SRC)/classify_configs.py --index $(ANALYSIS_INDEX) --min-length $(MIN_LENGTH)
 
-# Step 6: Run per-config anomaly detection
+# Step 3: Run per-config anomaly detection.
 analyze:
 	$(PYTHON) $(SRC)/analyze_configs.py \
 		--configs configs/configs.json \
-		--index $(INDEX) \
+		--index $(ANALYSIS_INDEX) \
 		--model $(MODEL) \
 		--conf $(CONF) \
 		--output-dir reports
+
+# ---------------------------------------------------------------------
+# Training workflow:
+#   make index-train BASE_DIR="2016/ ... 2020/"   ->   make prepare   ->
+#   make train   ->   make diagnostics
+# ---------------------------------------------------------------------
+
+# Step 1 (training): Build the training index without metadata filtering.
+index-train:
+	$(PYTHON) $(SRC)/build_index.py --base-dir $(BASE_DIR) --output $(TRAINING_INDEX) --include-all
+
+# Step 2 (training): Prepare training data from the training index.
+prepare:
+	$(PYTHON) $(SRC)/prepare_training_data.py --index $(TRAINING_INDEX) --output data/training_data.npy
+
+# Step 3 (training): Train the TS2Vec encoder on the prepared data.
+train:
+	$(PYTHON) $(SRC)/train_long.py --data data/training_data.npy --output $(MODEL) --conf $(CONF)
+
+# Step 4 (training): Run encoder diagnostics on the training index.
+diagnostics:
+	$(PYTHON) $(SRC)/model_diagnostics.py --index $(TRAINING_INDEX) --model $(MODEL) --conf $(CONF)
 
 clean:
 	rm -rf reports/ diagnostics/ plots_training/
 	rm -rf src/__pycache__
 
 help:
-	@echo "Pipeline:"
-	@echo "  make index        BASE_DIR=/data/2020      - Build measurement index"
-	@echo "  make prepare                               - Prepare training data from index"
-	@echo "  make train                                 - Train TS2Vec encoder"
-	@echo "  make diagnostics                           - Run encoder diagnostics (t-SNE, neighbors)"
-	@echo "  make classify     MIN_LENGTH=100           - Select configs by min sequence length"
-	@echo "  make analyze                               - Run anomaly detection pipeline"
-	@echo "  make clean                                 - Remove generated outputs"
+	@echo "Two workflows:"
 	@echo ""
-	@echo "Configurable variables:"
-	@echo "  BASE_DIR    Base directory with measurement/ and metadata/ (default: .)"
-	@echo "  INDEX       Index pickle file (default: run_index.pkl)"
-	@echo "  MODEL       Trained model path (default: models/ts2vec.pt)"
-	@echo "  MIN_LENGTH  Min post-SSD length for classify (default: 100)"
-	@echo "  CONF        Pipeline config file (default: pipeline.conf)"
+	@echo "Inference (analyse a dataset for anomalies):"
+	@echo "  make index        BASE_DIR=2020/                Build analysis index"
+	@echo "  make classify     MIN_LENGTH=100                Select configs by length"
+	@echo "  make analyze                                    Run anomaly detection"
+	@echo ""
+	@echo "Training (build a new encoder from richer data):"
+	@echo "  make index-train  BASE_DIR=\"2016/ ... 2020/\"    Build training index"
+	@echo "  make prepare                                    Prepare training data"
+	@echo "  make train                                      Train TS2Vec encoder"
+	@echo "  make diagnostics                                Run encoder diagnostics"
+	@echo ""
+	@echo "  make clean                                      Remove generated outputs"
+	@echo ""
+	@echo "Variables:"
+	@echo "  BASE_DIR         Base directory(ies) with measurement/ and metadata/ (default: .)"
+	@echo "  ANALYSIS_INDEX   Analysis index pickle (default: run_index.pkl)"
+	@echo "  TRAINING_INDEX   Training index pickle (default: training_index.pkl)"
+	@echo "  MODEL            Trained model path (default: models/ts2vec.pt)"
+	@echo "  MIN_LENGTH       Min post-SSD length for classify (default: 100)"
+	@echo "  CONF             Pipeline config file (default: pipeline.conf)"

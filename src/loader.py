@@ -11,8 +11,9 @@ from constants import (ALLOWED_GC_CONFIGS, ALLOWED_MACHINE_HOSTS,
 
 class DataLoader:
 
-    def __init__(self, base_dir: Path):
+    def __init__(self, base_dir: Path, include_all: bool = False):
         self.base_dir = base_dir
+        self.include_all = include_all
         self._json_cache: Dict[Path, dict] = {}
         self.grouped_data: Dict[Config, List[Tuple[Path, int]]] = {}
 
@@ -66,14 +67,16 @@ class DataLoader:
         except (ValueError, TypeError, KeyError):
             return None, None
 
-        if host_id not in ALLOWED_MACHINE_HOSTS:
+        if not self.include_all and host_id not in ALLOWED_MACHINE_HOSTS:
             return None, None
-        if gc_id not in ALLOWED_GC_CONFIGS:
+        if not self.include_all and gc_id not in ALLOWED_GC_CONFIGS:
             return None, None
 
         platform_id, version = self._resolve_platform(
             install_id, metadata_paths)
-        if platform_id not in ALLOWED_PLATFORM_TYPES:
+        if platform_id is None or version is None:
+            return None, None
+        if not self.include_all and platform_id not in ALLOWED_PLATFORM_TYPES:
             return None, None
 
         bench_name = self._resolve_benchmark(
@@ -158,8 +161,10 @@ def _count_rows(run_dir: Path) -> int:
         return 0
 
 
-def discover_all_runs(base_dir: Path) -> Dict[Config, List[Tuple[Path, int]]]:
+def discover_all_runs(base_dir: Path,
+                      include_all: bool = False
+                      ) -> Dict[Config, List[Tuple[Path, int]]]:
 
-    loader = DataLoader(base_dir=base_dir)
+    loader = DataLoader(base_dir=base_dir, include_all=include_all)
     loader.discover()
     return loader.grouped_data

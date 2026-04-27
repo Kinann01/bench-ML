@@ -14,6 +14,9 @@ def main():
                         help='Base directories containing measurement/ and metadata/')
     parser.add_argument('--output', type=str, default='run_index.pkl',
                         help='Output pickle file (default: run_index.pkl)')
+    parser.add_argument('--include-all', action='store_true',
+                        help='Skip all metadata filtering. '
+                             'Use when building an index for training.')
     args = parser.parse_args()
 
     all_runs = {}
@@ -21,7 +24,7 @@ def main():
     for base in args.base_dir:
         base_dir = Path(base).resolve()
         print(f"\nProcessing: {base_dir}")
-        runs = discover_all_runs(base_dir)
+        runs = discover_all_runs(base_dir, include_all=args.include_all)
 
         for config, entries in runs.items():
             all_runs.setdefault(config, []).extend(entries)

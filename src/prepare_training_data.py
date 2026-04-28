@@ -101,16 +101,14 @@ def main():
     if not all_normalized:
         print("No valid series found!")
         return
-
-    # Pad to common length
     max_len = max(all_lengths)
     padded = []
     for s in all_normalized:
-        p = np.full(max_len, PAD_VALUE)
-        p[:len(s)] = s
+        p = np.full(max_len, PAD_VALUE, dtype=np.float32)
+        p[:len(s)] = s.astype(np.float32)
         padded.append(p)
 
-    data = np.expand_dims(np.array(padded), axis=-1)
+    data = np.expand_dims(np.array(padded, dtype=np.float32), axis=-1)
 
     output_path = Path(args.output)
     if not output_path.is_absolute():

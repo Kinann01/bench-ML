@@ -13,6 +13,7 @@ The pipeline has two distinct workflows that use two distinct indexes so they do
 **Inference** (analyse a dataset for anomalies):
 ```
 build_index.py        →  run_index.pkl
+model_diagnostics.py  →  diagnostics/
 classify_configs.py   →  configs/configs.json
 analyze_configs.py    →  reports/
 ```
@@ -22,7 +23,6 @@ analyze_configs.py    →  reports/
 build_index.py            →  training_index.pkl   (--include-all)
 prepare_training_data.py  →  data/training_data.npy
 train_long.py             →  models/ts2vec.pt
-model_diagnostics.py      →  diagnostics/
 ```
 
 ## Quick Start
@@ -33,10 +33,14 @@ model_diagnostics.py      →  diagnostics/
 # 1. Build the analysis index (strict metadata filtering)
 make index BASE_DIR=/path/to/data/2020
 
-# 2. Select configs with sufficient post-SSD sequence length
-make classify MIN_LENGTH=100
+# 2. Run diagnostics on the the model with the analysis dataset
+#    (t-SNE + nearest neighbours)
+make diagnostics
 
-# 3. Run per-config anomaly detection
+# 3. Select configs with sufficient post-SSD sequence length
+make classify ANALYSIS_MIN_LENGTH=100
+
+# 4. Run per-config anomaly detection
 make analyze
 ```
 
@@ -48,15 +52,14 @@ make analyze
 make index-train BASE_DIR="/data/2016 /data/2017 /data/2018 /data/2019 /data/2020"
 
 # 2. Prepare the training data (SSD + log/IQR normalization + padding)
-make prepare
+make prepare TRAIN_MIN_LENGTH=150
 
 # 3. Train the TS2Vec encoder
 make train
 
-# 4. Validate the encoder (t-SNE + nearest neighbors on a sample)
-make diagnostics
-
 # Then use the trained model in the inference workflow above.
+# `make diagnostics` (in the inference workflow) is the recommended
+# next step to validate the new model on the data you intend to analyse.
 ```
 
 See `make help` for all available commands and configurable variables.

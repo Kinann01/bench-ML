@@ -24,7 +24,7 @@ index:
 # Step 2: Sanity-check the trained model on the data the
 # inference pipeline will actually consume (t-SNE + nearest neighbours).
 diagnostics:
-	$(PYTHON) $(SRC)/model_diagnostics.py --index $(ANALYSIS_INDEX) --model $(MODEL) --conf $(CONF)
+	$(PYTHON) $(SRC)/model_diagnostics.py --index $(ANALYSIS_INDEX) --model $(MODEL) --conf $(CONF) --min-length $(ANALYSIS_MIN_LENGTH)
 
 # Step 3: Select configurations with sufficient sequence length.
 classify:

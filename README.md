@@ -33,7 +33,7 @@ train_long.py             →  models/ts2vec.pt
 # 1. Build the analysis index (strict metadata filtering)
 make index BASE_DIR=/path/to/data/2020
 
-# 2. Run diagnostics on the the model with the analysis dataset
+# 2. Run diagnostics on the model using the analysis index
 #    (t-SNE + nearest neighbours)
 make diagnostics
 

@@ -99,7 +99,10 @@ def _instance_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tens
 
     loss = torch.tensor(0., device=z1.device)
     for t in range(T):
-        sim = torch.mm(z1[:, t, :], z2[:, t, :].T)
+        sim_cross = torch.mm(z1[:, t, :], z2[:, t, :].T)   # cross-view
+        sim_same = torch.mm(z1[:, t, :], z1[:, t, :].T)    # same-view
+        sim_same.fill_diagonal_(float('-inf'))             # exclude self-similarity
+        sim = torch.cat([sim_cross, sim_same], dim=1)
         loss -= F.log_softmax(sim, dim=1).diag().mean()
 
     return loss / T
@@ -113,7 +116,10 @@ def _temporal_contrastive_loss(z1: torch.Tensor, z2: torch.Tensor) -> torch.Tens
 
     loss = torch.tensor(0., device=z1.device)
     for i in range(batch_size):
-        sim = torch.mm(z1[i], z2[i].T)
+        sim_cross = torch.mm(z1[i], z2[i].T)               # cross-view
+        sim_same = torch.mm(z1[i], z1[i].T)                # same-view
+        sim_same.fill_diagonal_(float('-inf'))             # exclude self-similarity
+        sim = torch.cat([sim_cross, sim_same], dim=1)
         loss -= F.log_softmax(sim, dim=1).diag().mean()
 
     return loss / batch_size
@@ -125,7 +131,7 @@ def timestamp_masking(x: torch.Tensor, mask_ratio: float = 0.5) -> torch.Tensor:
     return x * keep_mask.unsqueeze(-1)
 
 
-def random_cropping(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, int]:
+def random_cropping(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, tuple[int, int], tuple[int, int]]:
 
     min_len = 2
 
@@ -143,7 +149,13 @@ def random_cropping(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tenso
     crop1 = x[:, start1:start1 + crop_len, :]
     crop2 = x[:, start2:start2 + crop_len, :]
 
-    return crop1, crop2, crop_len
+    # overlap region omega
+    s1 = max(0, start2 - start1)
+    e1 = crop_len - max(0, start1 - start2)
+    s2 = max(0, start1 - start2)
+    e2 = crop_len - max(0, start2 - start1)
+
+    return crop1, crop2, (s1, e1), (s2, e2)
 
 
 class TS2Vec(nn.Module):
@@ -215,12 +227,16 @@ class TS2Vec(nn.Module):
                 x_batch = data[idx].to(self.device)
                 l_batch = lengths[idx]
 
-                crop1, crop2, _ = random_cropping(x_batch, l_batch)
+                crop1, crop2, slice1, slice2 = random_cropping(x_batch, l_batch)
                 crop1_masked = timestamp_masking(crop1, self.mask_ratio)
                 crop2_masked = timestamp_masking(crop2, self.mask_ratio)
 
                 z1 = self.encoder(crop1_masked)
                 z2 = self.encoder(crop2_masked)
+
+                # slice based on Omega obtained from random_cropping()
+                z1 = z1[:, slice1[0]:slice1[1], :]
+                z2 = z2[:, slice2[0]:slice2[1], :]
 
                 loss = hierarchical_contrastive_loss(z1, z2)
 
